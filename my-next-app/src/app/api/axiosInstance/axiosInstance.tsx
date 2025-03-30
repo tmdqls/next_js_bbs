@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const axiosInstance = axios.create({
-  baseURL: "http://localhost:9999",
+  baseURL: typeof window === "undefined" ? "http://localhost:3000" : "",
 });
 
 export default axiosInstance;

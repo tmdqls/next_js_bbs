@@ -1,7 +1,7 @@
 "use client";
 
 import bbsApi from "@/app/api/bbsAPI";
-import { Topic } from "@/model/model";
+import { Topic } from "@/app/models/Board";
 import { useRouter, useParams } from "next/navigation";
 import router from "next/router";
 import { useEffect, useState } from "react";

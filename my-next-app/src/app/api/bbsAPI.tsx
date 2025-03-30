@@ -1,11 +1,11 @@
 import axiosGateway from "@/app/api/axiosGateway/axiosGateway";
-import { Topic } from "@/model/model";
+import { Board } from '@/app/models/Board';
 
 export const bbsApi = {
-  getBbsList: () => axiosGateway.get(`/topics`),
+  getBbsList: (page : number) => axiosGateway.get(`/api/boards?page=${page}`),
   getBbs: (id: string) => axiosGateway.get(`/topics?id=${id}`),
-  writeBbs: (data: Topic) => axiosGateway.post("/topics", data),
-  updateBbs: (data: Topic) => {
+  writeBbs: (data: Board) => axiosGateway.post("/topics", data),
+  updateBbs: (data: Board) => {
     const { id, ...rest } = data;
     return axiosGateway.patch(`/topics/${id}`, rest);
   },

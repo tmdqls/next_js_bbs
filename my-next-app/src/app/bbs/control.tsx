@@ -1,8 +1,9 @@
 "use client";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { bbsApi } from "./api/bbsAPI";
+import { bbsApi } from "../api/bbsAPI";
 const Control: React.FC = () => {
+  console.log("Control호출은됨?");
   const params = useParams();
   const id = Array.isArray(params.id) ? params.id[0] : params.id;
   const router = useRouter();
