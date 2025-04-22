@@ -13,9 +13,9 @@ const RootLayout: React.FC<Readonly<{ children: React.ReactNode }>> = ({
 }) => {
   return (
     <html lang="en">
-      <body className="bg-gray-50 text-gray-900 flex flex-col">
+      <body className="bg-gray-50 text-gray-900 flex flex-col min-h-screen">
         <Navbar />
-        <main className="max-w-7xl mx-auto flex justify-between items-center">{children}</main>
+        <main className="flex-grow max-w-7xl mx-auto">{children}</main>
         <Footer />
       </body>
     </html>

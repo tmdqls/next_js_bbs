@@ -10,7 +10,7 @@ const Navbar = () => {
 
         <div className="flex space-x-6">
           <Link href="/" className="text-white hover:text-gray-300 transition duration-300">Home</Link>
-          <Link href="/bbs/board/1" className="text-white hover:text-gray-300 transition duration-300">BBS</Link>
+          <Link href="components/bbs/board/1" className="text-white hover:text-gray-300 transition duration-300">BBS</Link>
           <Link href="" className="text-white hover:text-gray-300 transition duration-300">SIGN IN</Link>
           <Link href="" className="text-white hover:text-gray-300 transition duration-300">SIGN UP</Link>
         </div>

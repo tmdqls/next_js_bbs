@@ -3,9 +3,9 @@ import { ReactNode } from "react";
 
 export default function BbsLayout({ children }: { children: ReactNode }) {
   return (
-    <div className="flex h-screen">
+    <div className="flex">
       <Sidebar />
-      <main className="flex-1 p-6">{children}</main>
+      <main className="flex-1 p-2">{children}</main>
     </div>
   );
 }
