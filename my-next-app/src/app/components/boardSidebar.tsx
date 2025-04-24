@@ -2,7 +2,7 @@ import { FaHome, FaPen, FaListAlt } from "react-icons/fa";
 
 export default function Sidebar() {
   return (
-    <nav className="w-45 h-full text-black p-6 flex flex-col space-y-6 mt-10">
+    <nav className="w-64 h-full text-black p-6 flex flex-col space-y-6 mt-24">
       <ul className="space-y-4">
         <li>
           <a

@@ -6,7 +6,6 @@ import Link from "next/link";
 export default function Home() {
   return (
     <div className="bg-gray-100 p-6 flex flex-col items-center">
-      {/* 사이트 소개 섹션 */}
       <section className="w-full max-w-4xl bg-white p-8 rounded-2xl shadow-lg text-center mb-12">
         <h1 className="text-3xl font-bold text-gray-800 mb-6">サイト紹介</h1>
         <p className="text-gray-600 text-lg mb-6">
@@ -23,7 +22,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 주요 게시판 쇼트컷 버튼 */}
       <section className="w-full max-w-4xl grid grid-cols-1 sm:grid-cols-2 gap-6">
         <Link
           href="/board1"

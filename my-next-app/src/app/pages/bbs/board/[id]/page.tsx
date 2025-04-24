@@ -1,6 +1,6 @@
 import { getBoardList,getTotalPages } from '@/app/lib/board/boardService';
 import { Board } from '@/app/models/Board';
-import PagingButtons from '@/app/components/utill/PagingButtons';
+import PagingButtons from '@/app/components/PagingButtons';
 
 interface Props {
   params: {
@@ -35,7 +35,7 @@ const BoardPage = async ({ params }: Props) => {
         style={{ minHeight: '200px' }}
       >
         <h2 className="text-xl font-semibold text-gray-800 mb-4">{board.title}</h2>
-        <p className="text-sm text-gray-600 mb-4">{board.content}</p>
+        <p className="text-sm text-gray-600 mb-4"> {board.content.length > 100 ? `${board.content.slice(0, 100)}...` : board.content}</p>
         <div className="flex justify-between text-sm text-gray-500">
           <span>{new Date(board.created_at).toLocaleDateString()}</span>
           <span>閲覧数: {board.views}</span>
@@ -43,7 +43,7 @@ const BoardPage = async ({ params }: Props) => {
       </div>
     ))}
   </div>
-  <PagingButtons currentPage={page} totalPages={totalPages} basePath="/components/bbs/board" />
+  <PagingButtons currentPage={page} totalPages={totalPages} basePath="/pages/bbs/board" />
 </div>
   );
 };

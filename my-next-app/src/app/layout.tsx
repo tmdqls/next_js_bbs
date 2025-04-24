@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import Navbar from "./navbar";
 import Footer from "./footer";
+import ReduxProvider from "@/app/store/provider";
 
 export const metadata: Metadata = {
   title: "web tutorials",
@@ -13,10 +14,12 @@ const RootLayout: React.FC<Readonly<{ children: React.ReactNode }>> = ({
 }) => {
   return (
     <html lang="en">
-      <body className="bg-gray-50 text-gray-900 flex flex-col min-h-screen">
-        <Navbar />
-        <main className="flex-grow max-w-7xl mx-auto">{children}</main>
-        <Footer />
+      <body className="bg-gray-50 text-gray-900 flex flex-col min-h-screen ">
+        <ReduxProvider>
+          <Navbar />
+          <main className="flex-1 container mx-auto p-6">{children}</main>
+          <Footer />
+        </ReduxProvider>
       </body>
     </html>
   );

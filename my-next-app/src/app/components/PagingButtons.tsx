@@ -11,7 +11,6 @@ const PagingButtons: React.FC<PagingButtonsProps> = ({
   totalPages,
   basePath,
 }) => {
-  console.log(currentPage)
   const pagesPerGroup = 5;
   const currentGroup = Math.floor((currentPage - 1) / pagesPerGroup);
   const startPage = currentGroup * pagesPerGroup + 1;
@@ -20,7 +19,7 @@ const PagingButtons: React.FC<PagingButtonsProps> = ({
   const prevGroupPage = startPage - 1;
   const nextGroupPage = endPage + 1;
 
-  const pageNumbers = [];
+  const pageNumbers: number[] = [];
   for (let i = startPage; i <= endPage; i++) {
     pageNumbers.push(i);
   }

@@ -1,15 +1,6 @@
 import mysql from "mysql2/promise";
 import { Board } from "@/app/models/Board";
-
-const db = mysql.createPool({
-  host: "localhost",
-  user: "root",
-  password: "123123",
-  database: "mydatabase",
-  waitForConnections: true,
-  connectionLimit: 10,
-  queueLimit: 5,
-});
+import db from "../db";
 
 export const getBoardList = async (page: number): Promise<Board[]> => {
   const connection = await db.getConnection();
