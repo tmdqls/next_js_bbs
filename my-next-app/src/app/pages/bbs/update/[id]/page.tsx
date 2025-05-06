@@ -1,6 +1,6 @@
 "use client";
 
-import bbsApi from "@/app/api/bbsAPI";
+import bbsApi from "@/app/api/AuthAPI";
 import { Topic } from "@/app/models/Board";
 import { useRouter, useParams } from "next/navigation";
 import router from "next/router";

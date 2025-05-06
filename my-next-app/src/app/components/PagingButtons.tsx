@@ -1,5 +1,7 @@
 'use client';
 
+import Link from "next/link";
+
 interface PagingButtonsProps {
   currentPage: number;
   totalPages: number;
@@ -27,16 +29,16 @@ const PagingButtons: React.FC<PagingButtonsProps> = ({
   return (
     <div className="flex justify-center space-x-2 mt-6">
       {startPage > 1 && (
-        <a
+        <Link
           href={`${basePath}/${prevGroupPage}`}
           className="px-3 py-1 rounded bg-gray-300 hover:bg-gray-400"
         >
           &lt;
-        </a>
+        </Link>
       )}
 
       {pageNumbers.map((page) => (
-        <a
+        <Link
           key={page}
           href={`${basePath}/${page}`}
           className={`px-4 py-2 rounded ${
@@ -46,16 +48,16 @@ const PagingButtons: React.FC<PagingButtonsProps> = ({
           }`}
         >
           {page}
-        </a>
+        </Link>
       ))}
 
       {endPage < totalPages && (
-        <a
+        <Link
           href={`${basePath}/${nextGroupPage}`}
           className="px-3 py-1 rounded bg-gray-300 hover:bg-gray-400"
         >
           &gt;
-        </a>
+        </Link>
       )}
     </div>
   );

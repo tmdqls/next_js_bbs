@@ -3,6 +3,7 @@ import axiosInstance from '../axiosInstance/axiosInstance';
 
 axiosInstance.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
+    //jwtトークン認証追加予定
     return config;
   },
   (error: AxiosError) => {
@@ -37,6 +38,6 @@ axiosInstance.interceptors.response.use(
   }
 );
 
-const axiosGateway: AxiosInstance = axiosInstance;
+const axiosAuthGateway: AxiosInstance = axiosInstance;
 
-export default axiosGateway;
+export default axiosAuthGateway;

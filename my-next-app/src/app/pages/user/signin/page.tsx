@@ -2,9 +2,10 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useDispatch, useSelector } from "react-redux";
-import { AppDispatch, RootState } from "@/app/store/store";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "@/app/store/store";
 import { signin } from "@/app/store/userSlice";
+import { setAlert } from "@/app/store/alertSlice";
 
 const SignInPage = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -12,27 +13,22 @@ const SignInPage = () => {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [errorMsg, setErrorMsg] = useState("");
-
-  const error = useSelector((state: RootState) => state.user.error);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setErrorMsg("");
 
     const resultAction = await dispatch(signin({ email, password }));
 
     if (signin.fulfilled.match(resultAction)) {
       router.push("/");
+      dispatch(setAlert({ msg: "サインインしました。", msgType: "success" }));
     } else {
-      //開発用ログ
-      console.error("ログイン失敗", error);
-      setErrorMsg("E-Mailもしくはパスワードを確認してください。");
+      dispatch(setAlert({ msg: "Emailまたはパスワードに誤りがあります。", msgType: "error" }));
     }
   };
 
   return (
-      <div className="flex min-h-[calc(100vh-20rem)] justify-center items-center bg-gray-100">
+      <div className="flex min-h-[calc(100vh-20rem)] justify-center items-center bg-gray-100 rounded-xl">
         <form
           onSubmit={handleLogin}
           className="w-80 sm:w-96 md:w-80 lg:w-96 p-8 border-2 border-gray-300 rounded-xl shadow-lg bg-white"
@@ -40,11 +36,6 @@ const SignInPage = () => {
           <h2 className="text-3xl font-semibold text-center mb-6 text-gray-800">
             Sign In
           </h2>
-
-          {errorMsg && (
-            <p className="text-red-500 text-sm mb-4 text-center">{errorMsg}</p>
-          )}
-
           <div className="mb-6">
             <label
               htmlFor="email"

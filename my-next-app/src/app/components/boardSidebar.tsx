@@ -1,3 +1,6 @@
+"use client";
+
+import Link from "next/link";
 import { FaHome, FaPen, FaListAlt } from "react-icons/fa";
 
 export default function Sidebar() {
@@ -5,49 +8,49 @@ export default function Sidebar() {
     <nav className="w-64 h-full text-black p-6 flex flex-col space-y-6 mt-24">
       <ul className="space-y-4">
         <li>
-          <a
-            href="/bbs/create"
+          <Link
+            href="/pages/bbs/create"
             className="flex items-center text-lg font-medium hover:bg-gray-400 p-2 rounded-md transition-colors mb-14"
           >
             <FaPen className="mr-3" />
             記事作成
-          </a>
+          </Link>
         </li>
         <li>
-          <a
+          <Link
             href="/bbs"
             className="flex items-center text-lg font-medium hover:bg-gray-400 p-2 rounded-md transition-colors"
           >
             <FaHome className="mr-3" />
             ホーム
-          </a>
+          </Link>
         </li>
         <li>
-          <a
+          <Link
             href="/category1"
             className="flex items-center text-lg font-medium hover:bg-gray-400 p-2 rounded-md transition-colors"
           >
             <FaListAlt className="mr-3" />
             カテゴリ１
-          </a>
+          </Link>
         </li>
         <li>
-          <a
+          <Link
             href="/category2"
             className="flex items-center text-lg font-medium hover:bg-gray-400 p-2 rounded-md transition-colors"
           >
             <FaListAlt className="mr-3" />
             カテゴリ２
-          </a>
+          </Link>
         </li>
         <li>
-          <a
+          <Link
             href="/category3"
             className="flex items-center text-lg font-medium hover:bg-gray-400 p-2 rounded-md transition-colors"
           >
             <FaListAlt className="mr-3" />
             カテゴリ３
-          </a>
+          </Link>
         </li>
       </ul>
     </nav>

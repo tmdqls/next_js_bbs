@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
+import Api from "../api/API";
 
 interface userState {
   isLoggedIn: boolean;
@@ -22,7 +23,7 @@ export const signin = createAsyncThunk(
   "user/signin",
   async ({ email, password }: { email: string; password: string }, { rejectWithValue }) => {
     try {
-      const { data } = await axios.post("/api/user/signin", { email, password });
+      const { data } = await Api.signIn(email, password);
       return data;
     } catch (error) {
       return rejectWithValue(
@@ -35,9 +36,9 @@ export const signin = createAsyncThunk(
 // Signout
 export const signout = createAsyncThunk(
   "user/signout",
-  async ({}, { rejectWithValue }) => {
+  async (_, { rejectWithValue }) => {
     try {
-      const { data } = await axios.post("/api/user/signout");
+      const { data } = await Api.signOut();
       return data;
     } catch (error) {
       return rejectWithValue(
@@ -68,6 +69,7 @@ const userSlice = createSlice({
       .addCase(signin.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.payload as string;
+        console.log(action.payload);
       });
     // signout
     builder
@@ -84,6 +86,7 @@ const userSlice = createSlice({
       .addCase(signout.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.payload as string;
+        console.log(action.payload);
       });
   },
 });

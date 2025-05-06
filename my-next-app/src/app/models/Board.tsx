@@ -3,9 +3,9 @@ export interface Board {
   category: string;
   title: string;
   content: string;
-  like_count: number;
-  views: number;
+  author: string;
   created_at: string;
   updated_at: string;
-  author: string;
+  like_count: number;
+  views: number;
 }
