@@ -3,6 +3,7 @@
 { 
   "id": "5232377",
   "email": "johndoe@example.com",
-  "name": "John Doe"
+  "name": "John Doe",
+  "role": "user"
 }
 ```
