@@ -1,69 +1,62 @@
 import { NextRequest, NextResponse } from "next/server";
-import { JWTTokenManagerTask } from "@/app/lib/utill/JWTTokenManager";
-import { TaskResult } from "@/app/lib/Common/TaskResult";
+import { Result } from "@/app/lib/Common/Result";
 import { ErrorCodes } from "@/app/lib/Common/ErrorCodes";
+import { UserServices } from "@/app/lib/Services/UserServices";
+import { AppSymbol } from "@/app/lib/Simbol/AppSymbol";
 
 export async function POST(req: NextRequest) {
-  
-  let taskResult: TaskResult;
-  
   const body = await req.json();
-  const { email, password } = body;
 
-  if (!email || !password) {
-    return NextResponse.json({ error: "Missing fields" }, { status: 400 });
-  }
-  const jWTTokenManagerTask = new JWTTokenManagerTask();
+  const userServices = new UserServices();
+  userServices.setInputData(body);
   
+  const servicesResult = await userServices.execute();
 
-  try {
-    taskResult = await jWTTokenManagerTask.generateRefreshToken(
-      email
-    );
-  } catch {
+  if (servicesResult.getResult() === Result.NG) {
     return NextResponse.json(
       {
-        error: {
-          code: ErrorCodes.USER_NOT_FOUND.code,
-          message: ErrorCodes.USER_NOT_FOUND.message,
-        },
+        message:
+          servicesResult.getErrorResponse()?.message ??
+          ErrorCodes.SERVER_ERROR.message,
+        error: servicesResult.getErrors(),
       },
-      { status: ErrorCodes.USER_NOT_FOUND.status }
+      {
+        status:
+          servicesResult.getErrorResponse()?.status ??
+          ErrorCodes.SERVER_ERROR.status,
+      }
     );
   }
 
-  const refreshToken = taskResult.getTaskResults(
-    JWTTokenManagerTask.REFRESH_TOKEN
-  );
-
-  try {
-    taskResult = jWTTokenManagerTask.generateAccessToken(
-      refreshToken
-    );
-  } catch {
-    return NextResponse.json(
-      {
-        error: {
-          code: ErrorCodes.INVALID_TOKEN.code,
-          message: ErrorCodes.INVALID_TOKEN.message,
-        },
-      },
-      { status: ErrorCodes.INVALID_TOKEN.status }
-    );
-  }
-
-  const accessToken = taskResult.getTaskResults(
-    JWTTokenManagerTask.REFRESH_TOKEN
-  );
-
-  const response = NextResponse.json({ message: "Login successful" });
-
-  response.cookies.set("refreshToken", refreshToken, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "strict",
-    path: "/",
+  const response = NextResponse.json({
+    message: "Login successful",
+    id: servicesResult.getResultData(AppSymbol.USER_ID),
+    email: servicesResult.getResultData(AppSymbol.USER_EMAIL),
+    name: servicesResult.getResultData(AppSymbol.USER_NAME),
+    role: servicesResult.getResultData(AppSymbol.USER_ROLE),
   });
+
+  response.cookies.set(
+    AppSymbol.REFRESH_TOKEN,
+    servicesResult.getResultData(AppSymbol.REFRESH_TOKEN) as string,
+    {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      path: "/",
+    }
+  );
+
+  response.cookies.set(
+    AppSymbol.ACCESS_TOKEN,
+    servicesResult.getResultData(AppSymbol.ACCESS_TOKEN) as string,
+    {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      path: "/",
+    }
+  );
 
   return response;
 }

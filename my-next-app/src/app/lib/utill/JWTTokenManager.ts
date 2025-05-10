@@ -1,79 +1,99 @@
-import jwt, { JsonWebTokenError, NotBeforeError, TokenExpiredError } from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 import { UserJwtPayload } from "@/app/models/UserJwtPayload";
 import { Task } from "../Common/Task";
-import { TaskResult } from "../Common/TaskResult";
-import mysql from "mysql2/promise";
-import pool from "@/app/lib/db";
+import { Result } from "../Common/Result";
+import { UserTask } from "./userTask";
+import { ErrorCodes } from "../Common/ErrorCodes";
+import { User } from "@/app/models/User";
 
 export class JWTTokenManagerTask implements Task {
-
   // トークンシークレット
-  private static readonly ACCESS_SECRET =
-    process.env.JWT_ACCESS_SECRET || "";
-  private static readonly REFRESH_SECRET =
-    process.env.JWT_REFRESH_SECRET || "";
+  private static readonly ACCESS_SECRET = process.env.JWT_ACCESS_SECRET || "";
+  private static readonly REFRESH_SECRET = process.env.JWT_REFRESH_SECRET || "";
 
   // TaskResults Key
   static readonly ACCESS_TOKEN = "accessToken";
   static readonly REFRESH_TOKEN = "refreshToken";
 
-  private async getUserData(email: string): Promise<UserJwtPayload> {
-    const [rows] = await pool.query("SELECT * FROM users WHERE email = ?", [email]);
-    const user = (rows as mysql.RowDataPacket[])[0];
-
-    const payload : UserJwtPayload = { id: user.id, email: user.email, name: user.name, role: user.role };
-    
-    return payload;
-  }
-
   // アクセストークン生成
-  generateAccessToken(refreshToken : string): TaskResult {
+  generateAccessToken(refreshToken: string): Result<string> {
+    const taskResult = new Result<string>();
 
-    const taskResult = new TaskResult();
+    // リフレッシュトークンチェック
+    if(!JWTTokenManagerTask.verifyRefreshToken(refreshToken)) {
+      taskResult.addError({
+        field: "refreshToken",
+        message: "トークン情報が正しくありません。",
+      });
+      taskResult.setResult(Result.NG);
+      taskResult.setErrorResponse(ErrorCodes.INVALID_TOKEN);
+      return taskResult;
+      
+    }
 
     try {
-
-      const decodedPayload = jwt.decode(refreshToken);
-
-      let payload: string = "";
-      if (typeof decodedPayload === 'string') {
-        payload = decodedPayload;
-      }else{
-        taskResult.addError({ field: "refreshToken", message: "リフレッシュトークン情報が読み取れませんでした。" });
-        taskResult.setTaskResult(TaskResult.NG);
-        console.error("generateAccessToken error");
-      }
-
-      taskResult.setTaskResults(JWTTokenManagerTask.ACCESS_TOKEN,
-      jwt.sign(payload, JWTTokenManagerTask.ACCESS_SECRET, { expiresIn: "15m" }));
-      taskResult.setTaskResult(TaskResult.OK);
-    
+      // アクセストークン生成
+      const refreshPayload = jwt.decode(refreshToken) as UserJwtPayload;
+      const payload : UserJwtPayload = {
+        id: refreshPayload.id,
+        email: refreshPayload.email,
+        name: refreshPayload.name,
+        role: refreshPayload.role,
+      };
+      const accessToken = jwt.sign(payload, JWTTokenManagerTask.ACCESS_SECRET, {
+        expiresIn: "15m",
+      });
+      taskResult.setResultData(JWTTokenManagerTask.ACCESS_TOKEN, accessToken);
+      taskResult.setResult(Result.OK);
     } catch (error) {
-      taskResult.addError({ field: "refreshToken", message: "アクセストークン生成に失敗しました。" });
-      taskResult.setTaskResult(TaskResult.NG);
-      console.error(error);
+      console.error("JWT生成失敗:", error);
+      throw new Error("JWTの生成中に予期しないエラーが発生しました。");
     }
 
     return taskResult;
   }
 
   // リフレッシュトークン生成
-  async generateRefreshToken(email: string): Promise<TaskResult> {
+  async generateRefreshToken(email: string): Promise<Result<string>> {
+    const taskResult = new Result<string>();
 
-    const taskResult = new TaskResult();
-  
-    try {
-      const payload = await this.getUserData(email);
+    // ユーザー情報取得
+    const user = await UserTask.findUserByEmail(email);
 
-      const refreshToken = jwt.sign(payload, JWTTokenManagerTask.REFRESH_SECRET, { expiresIn: "7d" });
-      taskResult.setTaskResults(JWTTokenManagerTask.REFRESH_TOKEN, refreshToken);
-      taskResult.setTaskResult(TaskResult.OK);
-    } catch (error) {
-      taskResult.addError({ field: "email", message: "リフレッシュトークン生成に失敗しました。" });
-      taskResult.setTaskResult(TaskResult.NG);
-      console.error(error);
+    if (user.getResult() === Result.NG) {
+      taskResult.setResult(Result.NG);
+      for (const err of user.getErrors()) {
+        taskResult.addError(err);
+      }
+      taskResult.setErrorResponse(user.getErrorResponse());
+      return taskResult;
     }
-  
+
+    try {
+      // リフレッシュトークン生成
+      const userData: User = user.getResultData(
+        UserTask.findUserByEmailResult
+      ) as User;
+
+      const payload: UserJwtPayload = {
+        id: userData.id,
+        email: userData.email,
+        name: userData.name,
+        role: userData.role,
+      };
+
+      const refreshToken = jwt.sign(
+        payload,
+        JWTTokenManagerTask.REFRESH_SECRET,
+        { expiresIn: "7d" }
+      );
+      taskResult.setResultData(JWTTokenManagerTask.REFRESH_TOKEN, refreshToken);
+      taskResult.setResult(Result.OK);
+    } catch (error) {
+      console.error("JWT生成失敗:", error);
+      throw new Error("JWTの生成中に予期しないエラーが発生しました。");
+    }
+
     return taskResult;
   }
 
@@ -81,21 +101,9 @@ export class JWTTokenManagerTask implements Task {
   static verifyAccessToken(token: string): boolean {
     try {
       jwt.verify(token, this.ACCESS_SECRET);
-      return true; 
-    } catch (err) {
-      if (err instanceof JsonWebTokenError) {
-        console.error('Invalid access token', err.message);
-        return false;
-      }
-      if (err instanceof TokenExpiredError) {
-        console.error('Token has expired', err.message);
-        return false;
-      }
-      if (err instanceof NotBeforeError) {
-        console.error('Token is not yet active', err.message);
-        return false;
-      }
-      throw new Error('Token verification failed');
+      return true;
+    } catch {
+      return false;
     }
   }
 
@@ -103,22 +111,9 @@ export class JWTTokenManagerTask implements Task {
   static verifyRefreshToken(token: string): boolean {
     try {
       jwt.verify(token, this.REFRESH_SECRET);
-      return true; 
-    } catch (err) {
-      if (err instanceof JsonWebTokenError) {
-        console.error('Invalid access token', err.message);
-        return false;
-      }
-      if (err instanceof TokenExpiredError) {
-        console.error('Token has expired', err.message);
-        return false;
-      }
-      if (err instanceof NotBeforeError) {
-        console.error('Token is not yet active', err.message);
-        return false;
-      }
-      throw new Error('Token verification failed');
+      return true;
+    } catch {
+      return false;
     }
   }
-
 }

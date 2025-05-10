@@ -4,7 +4,11 @@ export interface ErrorDetail {
   }
   
 export interface ErrorResponse {
-    code: number;
+    status: number;
     message: string;
-    errors: ErrorDetail[];
   }
+
+  export interface ClientErrorResponse {
+  message: string;
+  error: ErrorDetail[];
+}

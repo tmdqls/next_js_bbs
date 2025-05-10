@@ -1,11 +1,10 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 import Api from "../api/API";
+import { UserJwtPayload } from "../models/UserJwtPayload";
 
-interface userState {
+interface userState extends UserJwtPayload {
   isLoggedIn: boolean;
-  id: number;
-  email: string;
   status: "idle" | "loading" | "succeeded" | "failed";
   error: string | null;
 }
@@ -14,6 +13,8 @@ const initialState: userState = {
   isLoggedIn: false,
   id: 0,
   email: "",
+  name: "",
+  role: "",
   status: "idle",
   error: null,
 };
@@ -65,6 +66,8 @@ const userSlice = createSlice({
         state.isLoggedIn = true;
         state.id = action.payload.id;
         state.email = action.payload.email;
+        state.name = action.payload.name;
+        state.role = action.payload.role;
       })
       .addCase(signin.rejected, (state, action) => {
         state.status = "failed";

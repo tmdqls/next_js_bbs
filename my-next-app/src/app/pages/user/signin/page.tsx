@@ -6,6 +6,7 @@ import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/app/store/store";
 import { signin } from "@/app/store/userSlice";
 import { setAlert } from "@/app/store/alertSlice";
+import { ClientErrorResponse } from "@/app/models/ErrorResponse";
 
 const SignInPage = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -23,7 +24,9 @@ const SignInPage = () => {
       router.push("/");
       dispatch(setAlert({ msg: "サインインしました。", msgType: "success" }));
     } else {
-      dispatch(setAlert({ msg: "Emailまたはパスワードに誤りがあります。", msgType: "error" }));
+      const errorPayload = resultAction.payload as ClientErrorResponse;
+      const error = errorPayload.error[0];
+      dispatch(setAlert({ msg:error.message as string , msgType: "error" }));
     }
   };
 
