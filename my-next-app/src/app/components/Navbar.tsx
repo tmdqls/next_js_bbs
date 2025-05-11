@@ -1,12 +1,12 @@
 "use client";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { AppDispatch, RootState } from "@/app/store/store";
+import { AppDispatch, RootState } from "@/app/store/Store";
 import { useDispatch, useSelector } from "react-redux";
-import { signout } from "@/app/store/userSlice";
+import { signout } from "@/app/store/slice/userSlice";
 import {  useState } from "react";
-import Confirm from "./components/Confirm";
-import { setAlert } from "@/app/store/alertSlice";
+import Confirm from "./Confirm";
+import { setAlert } from "@/app/store/slice/alertSlice";
 
 const Navbar = () => {
   const router = useRouter();

@@ -1,24 +1,18 @@
 import { Result } from "@/app/lib/Common/Result";
 import { SecureTask } from "@/app/lib/utill/SecureTask";
-import { AbstractService } from "../Common/AbstractService";
+import { AbstractService } from "../../Common/AbstractService";
 import { z } from "zod";
-import { UserTask } from "@/app/lib/utill/userTask";
-import { JWTTokenManagerTask } from "../utill/JWTTokenManager";
+import { UserTask } from "@/app/lib/utill/UserTask";
+import { JWTTokenManagerTask } from "../../utill/JWTTokenManager";
 import { User } from "@/app/models/User";
-import { AppSymbol } from "../Simbol/AppSymbol";
-import { ErrorCodes } from "../Common/ErrorCodes";
+import { AppSymbol } from "../../Simbol/AppSymbol";
+import { ErrorCodes } from "../../Common/ErrorCodes";
+import {emailSchema, passwordSchema} from "@/app/schemas/UserSchema";
 
-export class UserServices extends AbstractService {
+export class SignInService extends AbstractService {
   schema = z.object({
-    email: z
-      .string({ required_error: "emailは必須です。" })
-      .min(8, "emailは8文字以上で入力してください。")
-      .max(32, "emailは32文字以下で入力してください。")
-      .email("正しいemail形式で入力してください。"),
-    password: z
-      .string({ required_error: "passwordは必須です。" })
-      .min(8, "passwordは8文字以上で入力してください。")
-      .max(32, "passwordは32文字以下で入力してください。"),
+    email: emailSchema,
+    password: passwordSchema,
   });
 
   async editData(): Promise<boolean> {
@@ -114,11 +108,7 @@ export class UserServices extends AbstractService {
       return true;
     } catch {
       servicesResult.setResult(Result.NG);
-      servicesResult.addError({
-        field: "server",
-        message: "予測しないエラーが発生しました。もう一度お試しください。",
-      });
-      console.error("UserServices editData error");
+      console.error("SignInService editData error");
       return false;
     }
   }

@@ -1,9 +1,9 @@
 "use client";
 
 import { useSelector, useDispatch } from "react-redux";
-import { RootState } from "@/app/store/store";
+import { RootState } from "@/app/store/Store";
 import Alert from "@/app/components/Alert";
-import { clearAlert } from "@/app/store/alertSlice";
+import { clearAlert } from "@/app/store/slice/alertSlice";
 
 const AlertUI = () => {
   const dispatch = useDispatch();

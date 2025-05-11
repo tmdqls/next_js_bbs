@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
-import Api from "../api/API";
-import { UserJwtPayload } from "../models/UserJwtPayload";
+import Api from "../../api/API";
+import { UserJwtPayload } from "../../models/UserJwtPayload";
 
 interface userState extends UserJwtPayload {
   isLoggedIn: boolean;

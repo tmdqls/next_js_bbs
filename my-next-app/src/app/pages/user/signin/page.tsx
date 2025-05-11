@@ -3,9 +3,9 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useDispatch } from "react-redux";
-import { AppDispatch } from "@/app/store/store";
-import { signin } from "@/app/store/userSlice";
-import { setAlert } from "@/app/store/alertSlice";
+import { AppDispatch } from "@/app/store/Store";
+import { signin } from "@/app/store/slice/userSlice";
+import { setAlert } from "@/app/store/slice/alertSlice";
 import { ClientErrorResponse } from "@/app/models/ErrorResponse";
 
 const SignInPage = () => {

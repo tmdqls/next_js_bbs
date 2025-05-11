@@ -10,11 +10,18 @@ export const ErrorCodes = {
   FORBIDDEN: { status: 403, message: "アクセス権限がありません。" },
 
   // 404 - Not Found
-  USER_NOT_FOUND: {
+  NOT_FOUND: {
     status: 404,
     message: "該当するリソースが見つかりません。",
   },
 
   // 500 - Internal Server Error
-  SERVER_ERROR: { status: 500, message: "サーバー内部エラーが発生しました。" },
+  SERVER_ERROR: {
+    status: 500,
+    message: "サーバー内部エラーが発生しました。",
+    detail: {
+      field: "server",
+      message: "予測しないエラーが発生しました。もう一度お試しください。",
+    },
+  },
 };

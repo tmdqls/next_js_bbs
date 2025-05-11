@@ -2,36 +2,46 @@
 
 import useSWR from "swr";
 import { useParams } from "next/navigation";
-import { Board } from "@/app/models/Board";
+import { Board, BoardListResponse } from "@/app/models/Board";
 import PagingButtons from "@/app/components/PagingButtons";
 import LoadingScreen from "@/app/components/LoadingScreen";
 import Link from "next/link";
 import Api from "@/app/api/API";
 import striptags from "striptags";
+import { AppSymbol } from "@/app/lib/Simbol/AppSymbol";
+import { PageSchema, BoardListSchema } from "@/app/schemas/BoardSchema";
+import { redirect } from "next/navigation";
+import { boardListUrl } from "@/app/utill/generateUrl";
 
 const BoardPage = () => {
   const params = useParams();
-  const page = Array.isArray(params.id) ? params.id[0] : params.id ?? "1";
+  const page = Number(params.id);
 
-  const {
-    data: BoardsData,
-    error: BoardsError,
-    isLoading: boardsLoading,
-  } = useSWR<Board[]>(`/api/board/getList?page=${page}`, () =>
-    Api.getBbsList(page).then((res) => res.data)
+  // page番号検査
+  const pageZodResult = PageSchema.safeParse(page);
+  if (!pageZodResult.success) {
+    redirect("/404");
+  }
+
+  const { data, error } = useSWR<BoardListResponse>(
+    boardListUrl(page),
+    () =>
+      Api.getBbsList(page).then((res) => {
+        const parseResult = BoardListSchema.safeParse(res.data);
+
+        if (!parseResult.success) {
+          // 404画面へ遷移予定
+          console.error("Data validation failed:", parseResult.error);
+          throw new Error("Invalid data format");
+        }
+
+        return res.data;
+      })
   );
 
-  const {
-    data: TotalPageData,
-    error: TotalpageError,
-    isLoading: totalPagesLoading,
-  } = useSWR<{ totalPages: number }>(`/api/board/getTotalListCount`, () =>
-    Api.getTotalListCount().then((res) => res.data)
-  );
+  const isLoading = !data && !error;
 
-  const isLoading = boardsLoading || totalPagesLoading;
-
-  if (BoardsError || TotalpageError) {
+  if (error) {
     return (
       <div className="text-center text-red-500 mt-8">
         データの読み込み中にエラーが発生しました。
@@ -39,10 +49,10 @@ const BoardPage = () => {
     );
   }
 
-  if (
-    !isLoading &&
-    (Number(page) > (TotalPageData?.totalPages || 0) || Number(page) <= 0)
-  ) {
+  const TotalPageNum = data?.[AppSymbol.BOARD_LIST_TOTAL_COUNT] as number;
+  const BoardsData = data?.[AppSymbol.BOARD_LIST] as Board[];
+
+  if (!isLoading && (page > TotalPageNum || page <= 0)) {
     return (
       <div className="max-w-7xl mx-auto p-6">
         <h1 className="text-3xl font-bold text-center text-gray-800 mb-8">
@@ -90,8 +100,8 @@ const BoardPage = () => {
 
       {isLoading ? null : (
         <PagingButtons
-          currentPage={Number(page)}
-          totalPages={TotalPageData?.totalPages || 0}
+          currentPage={page}
+          totalPages={TotalPageNum}
           basePath="/pages/bbs/board"
         />
       )}

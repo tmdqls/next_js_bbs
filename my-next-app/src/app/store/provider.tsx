@@ -1,7 +1,7 @@
 "use client";
 
 import { PersistGate } from "redux-persist/integration/react";
-import { store, persistor } from "./store";
+import { store, persistor } from "./Store";
 import { Provider } from "react-redux";
 
 type Props = {

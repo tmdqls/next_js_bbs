@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import ReactQuillEditor from "@/app/components/ReactQuillEditor";
-import useAuthGuard from "@/app/utill/useAuthGuard";
+import useAuthGuard from "@/app/utill/UseAuthGuard";
 import LoadingScreen from "@/app/components/LoadingScreen";
 import AuthApi from "@/app/api/AuthAPI";
 import { useRouter } from "next/navigation";

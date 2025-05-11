@@ -4,7 +4,7 @@ import Api from "../api/API";
 
 const useAuthGuard = () => {
   const router = useRouter();
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
     const checkAuth = async () => {

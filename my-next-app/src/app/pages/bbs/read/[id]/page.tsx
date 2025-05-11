@@ -1,6 +1,6 @@
 import Api from "@/app/api/API";
 import { Board } from "@/app/models/Board";
-import SafeHtmlViewer from "@/app/components/sageHtmlViewer";
+import SafeHtmlViewer from "@/app/components/SageHtmlViewer";
 
 export default async function BoardDetailPage({
   params,

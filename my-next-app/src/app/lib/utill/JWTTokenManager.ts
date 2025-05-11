@@ -2,7 +2,7 @@ import jwt from "jsonwebtoken";
 import { UserJwtPayload } from "@/app/models/UserJwtPayload";
 import { Task } from "../Common/Task";
 import { Result } from "../Common/Result";
-import { UserTask } from "./userTask";
+import { UserTask } from "./UserTask";
 import { ErrorCodes } from "../Common/ErrorCodes";
 import { User } from "@/app/models/User";
 
