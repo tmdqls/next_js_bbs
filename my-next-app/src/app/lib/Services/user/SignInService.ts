@@ -1,13 +1,13 @@
 import { Result } from "@/app/lib/Common/Result";
-import { SecureTask } from "@/app/lib/utill/SecureTask";
+import { SecureTask } from "@/app/lib/task/SecureTask";
 import { AbstractService } from "../../Common/AbstractService";
 import { z } from "zod";
-import { UserTask } from "@/app/lib/utill/UserTask";
-import { JWTTokenManagerTask } from "../../utill/JWTTokenManager";
+import { UserTask } from "@/app/lib/task/UserTask";
+import { JWTTokenManagerTask } from "../../task/JWTTokenManager";
 import { User } from "@/app/models/User";
 import { AppSymbol } from "../../Simbol/AppSymbol";
 import { ErrorCodes } from "../../Common/ErrorCodes";
-import {emailSchema, passwordSchema} from "@/app/schemas/UserSchema";
+import { emailSchema, passwordSchema } from "@/app/schemas/UserSchema";
 
 export class SignInService extends AbstractService {
   schema = z.object({
@@ -22,10 +22,11 @@ export class SignInService extends AbstractService {
     };
 
     const servicesResult = this.getServicesResult();
+    const conn = this.getConnection();
 
     try {
       // ユーザーデータ照会
-      const userTaskResult = await UserTask.findUserByEmail(email);
+      const userTaskResult = await UserTask.findUserByEmail(conn, email);
 
       if (userTaskResult.getResult() === Result.NG) {
         servicesResult.setResult(Result.NG);
@@ -37,7 +38,7 @@ export class SignInService extends AbstractService {
       }
 
       const user = userTaskResult.getResultData(
-        UserTask.findUserByEmailResult
+        UserTask.FIND_USER_BY_EMAIL_RESULT
       ) as User;
 
       this.setOutputData(AppSymbol.USER_ID, user.id);
@@ -54,10 +55,10 @@ export class SignInService extends AbstractService {
 
       if (!isPasswordValid) {
         servicesResult.setResult(Result.NG);
-          servicesResult.addError({
-            field: "password",
-            message: "パスワード正しくありません。",
-          });
+        servicesResult.addError({
+          field: "password",
+          message: "パスワード正しくありません。",
+        });
 
         servicesResult.setErrorResponse(ErrorCodes.UNAUTHORIZED);
         return false;
@@ -68,6 +69,7 @@ export class SignInService extends AbstractService {
 
       // リフレッシュトークン生成
       const reFreshTokenResult = await jWTTokenManagerTask.generateRefreshToken(
+        conn,
         email
       );
 
@@ -106,10 +108,9 @@ export class SignInService extends AbstractService {
       this.setOutputData(AppSymbol.ACCESS_TOKEN, accessToken);
 
       return true;
-    } catch {
+    } catch (error) {
       servicesResult.setResult(Result.NG);
-      console.error("SignInService editData error");
-      return false;
+      throw new Error("SignInService.editData error", { cause: error });
     }
   }
   setOutput(): boolean {

@@ -1,29 +1,29 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Result } from "@/app/lib/Common/Result";
-import { ErrorCodes } from "@/app/lib/Common/ErrorCodes";
 import { SignInService } from "@/app/lib/Services/user/SignInService";
 import { AppSymbol } from "@/app/lib/Simbol/AppSymbol";
+import pool from "@/app/lib/db";
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
 
   const signInService = new SignInService();
+  // リクエストボディをサービスに渡す
   signInService.setInputData(body);
+  // DB接続
+  const conn = await pool.getConnection();
+  signInService.setConnection(conn);
 
   const signInResult = await signInService.execute();
 
   if (signInResult.getResult() === Result.NG) {
     return NextResponse.json(
       {
-        message:
-          signInResult.getErrorResponse()?.message ??
-          ErrorCodes.SERVER_ERROR.message,
-        error: signInResult.getErrors() ?? ErrorCodes.SERVER_ERROR.detail,
+        message: signInResult.getErrorResponse().message,
+        error: signInResult.getErrors(),
       },
       {
-        status:
-          signInResult.getErrorResponse()?.status ??
-          ErrorCodes.SERVER_ERROR.status,
+        status: signInResult.getErrorResponse().status,
       }
     );
   }

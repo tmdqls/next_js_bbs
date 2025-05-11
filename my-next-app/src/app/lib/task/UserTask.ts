@@ -1,18 +1,17 @@
 import mysql from "mysql2/promise";
-import pool from "@/app/lib/db";
 import { User } from "@/app/models/User";
 import { Result } from "../Common/Result";
 import { Task } from "../Common/Task";
 import { ErrorCodes } from "../Common/ErrorCodes";
 
 export class UserTask implements Task {
-  static readonly findUserByEmailResult = "findUserByEmailResult";
+  static readonly FIND_USER_BY_EMAIL_RESULT = "findUserByEmailResult";
 
-  static async findUserByEmail(email: string): Promise<Result<User>> {
+  static async findUserByEmail(con : mysql.Connection, email: string): Promise<Result<User>> {
     const result = new Result<User>();
 
     try {
-      const [rows] = await pool.query<mysql.RowDataPacket[]>(
+      const [rows] = await con.query<mysql.RowDataPacket[]>(
         "SELECT * FROM users WHERE email = ?",
         [email]
       );
@@ -43,21 +42,12 @@ export class UserTask implements Task {
       };
 
       result.setResult(Result.OK);
-      result.setResultData(UserTask.findUserByEmailResult, user);
+      result.setResultData(UserTask.FIND_USER_BY_EMAIL_RESULT, user);
 
       return result;
     } catch (error) {
       result.setResult(Result.NG);
-      result.addError({
-        field: "server",
-        message: "予測しないエラーが発生しました。もう一度お試しください。",
-      });
-      result.setErrorResponse({
-        status: ErrorCodes.SERVER_ERROR.status,
-        message: ErrorCodes.SERVER_ERROR.message,
-      });
-      console.error("userTask.findUserByEmail DB error:", error);
-      return result;
+      throw new Error("UserTask.findUserByEmail error", { cause: error });
     }
   }
 }

@@ -1,10 +1,11 @@
 import mysql from "mysql2/promise";
-import pool from "@/app/lib/db";
 import { Result } from "../Common/Result";
 import { Task } from "../Common/Task";
 import { ErrorCodes } from "../Common/ErrorCodes";
 import { Board } from "@/app/models/Board";
 import { BoardListOptions } from "@/app/models/Board";
+import { BoardUtill } from "../utill/BoardUtill";
+import { LikeUtill } from "../utill/LikeUtill";
 
 export class BoardTask implements Task {
   static readonly BOARD_LIST = "boardList";
@@ -13,7 +14,9 @@ export class BoardTask implements Task {
   // 1ページに表示する掲示物の数
   private static readonly PAGE_SIZE = 9;
 
+  // 掲示板リスト取得
   static async getBoardList(
+    conn: mysql.Connection,
     pageNum: number,
     options?: BoardListOptions
   ): Promise<Result<Board[]>> {
@@ -70,7 +73,7 @@ export class BoardTask implements Task {
         (pageNum - 1) * BoardTask.PAGE_SIZE
       );
 
-      const [rows] = await pool.query<mysql.RowDataPacket[]>(
+      const [rows] = await conn.query<mysql.RowDataPacket[]>(
         query,
         queryParams
       );
@@ -93,20 +96,13 @@ export class BoardTask implements Task {
       return result;
     } catch (error) {
       result.setResult(Result.NG);
-      result.addError({
-        field: "server",
-        message: "予測しないエラーが発生しました。もう一度お試しください。",
-      });
-      result.setErrorResponse({
-        status: ErrorCodes.SERVER_ERROR.status,
-        message: ErrorCodes.SERVER_ERROR.message,
-      });
-      console.error("BoardTask.getBoardList DB error:", error);
-      return result;
+      throw new Error("BoardTask.getBoardList error", { cause: error });
     }
   }
 
+  // トータルぺ゙ード数取得
   static async getBoardListTotalCount(
+    conn: mysql.Connection,
     options?: BoardListOptions
   ): Promise<Result<number>> {
     const result = new Result<number>();
@@ -138,7 +134,7 @@ export class BoardTask implements Task {
     }
 
     try {
-      const [rows] = await pool.query<mysql.RowDataPacket[]>(query, params);
+      const [rows] = await conn.query<mysql.RowDataPacket[]>(query, params);
       const totalCount = rows[0]?.total;
 
       if (!totalCount) {
@@ -161,16 +157,67 @@ export class BoardTask implements Task {
       return result;
     } catch (error) {
       result.setResult(Result.NG);
-      result.addError({
-        field: "server",
-        message: "予測しないエラーが発生しました。もう一度お試しください。",
+      throw new Error("BoardTask.getBoardListTotalCount error", {
+        cause: error,
       });
-      result.setErrorResponse({
-        status: ErrorCodes.SERVER_ERROR.status,
-        message: ErrorCodes.SERVER_ERROR.message,
-      });
-      console.error("boardTask.getBoardListTotalCount DB error:", error);
-      return result;
+    }
+  }
+  /**
+   * 記事の「いいね」数を増減する
+   *
+   * @param userId - ユーザーID
+   * @param boardId - 記事ID
+   * @param operation - "add" なら +1、"remove" なら -1
+   * @returns 実行成功 OK ,処理失敗 NG
+   */
+  static async updateLikeCount(
+    conn: mysql.Connection,
+    userId: number,
+    boardId: number,
+    operation: "add" | "remove"
+  ): Promise<Result> {
+    const taskResult = new Result<void>();
+    try {
+
+      // 掲示物存在チェック
+      const isExist = await BoardUtill.isExist(conn, boardId);
+
+      if (!isExist) {
+        taskResult.setResult(Result.NG);
+        taskResult.addError({
+          field: "boardId",
+          message: "該当する掲示物が見つかりません。",
+        });
+        taskResult.setErrorResponse({
+          status: ErrorCodes.NOT_FOUND.status,
+          message: ErrorCodes.NOT_FOUND.message,
+        });
+        return taskResult;
+      }
+
+      // like_count 更新
+      const increment = operation === "add" ? 1 : -1;
+      const updateQuery = `
+              UPDATE 
+                boards
+              SET 
+                like_count = like_count + ?
+              WHERE 
+                id = ?
+              `;
+      await conn.query(updateQuery, [increment, boardId]);
+
+      // like 更新
+      if(operation === "add") {
+        await LikeUtill.insertLike(conn, userId, boardId);
+      } else {
+        await LikeUtill.deleteLike(conn, userId, boardId);
+      }
+
+      taskResult.setResult(Result.OK);
+      return taskResult;
+    } catch (error) {
+      throw new Error("BoardTask.updateLikeCount error", { cause: error });
     }
   }
 }

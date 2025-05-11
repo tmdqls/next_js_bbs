@@ -31,3 +31,18 @@ export const OptionsSchema = z.object({
 export const PageSchema = z.number({
   required_error: "ページは必須です。",
 }).min(1, { message: "ページ番号は1以上でなければなりません。" });
+
+// いいねリクエスト
+export const LikeRequestSchema = z.object({
+  boardId: z.number({
+    required_error: "ボードIDは必須です。",
+  }).int().positive({ message: "ボードIDは正の整数でなければなりません。" }),
+
+  userId: z.number({
+    required_error: "ユーザーIDは必須です。",
+  }).int().positive({ message: "ユーザーIDは正の整数でなければなりません。" }),
+
+  boardLikeOption: z.enum(["add", "remove"], {
+    required_error: "いいね処理の種類は必須です。",
+  }),
+});

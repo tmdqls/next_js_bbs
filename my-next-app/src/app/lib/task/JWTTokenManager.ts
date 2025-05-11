@@ -5,6 +5,7 @@ import { Result } from "../Common/Result";
 import { UserTask } from "./UserTask";
 import { ErrorCodes } from "../Common/ErrorCodes";
 import { User } from "@/app/models/User";
+import mysql from "mysql2/promise";
 
 export class JWTTokenManagerTask implements Task {
   // トークンシークレット
@@ -46,19 +47,19 @@ export class JWTTokenManagerTask implements Task {
       taskResult.setResultData(JWTTokenManagerTask.ACCESS_TOKEN, accessToken);
       taskResult.setResult(Result.OK);
     } catch (error) {
-      console.error("JWT生成失敗:", error);
-      throw new Error("JWTの生成中に予期しないエラーが発生しました。");
+      taskResult.setResult(Result.NG);
+      throw new Error("JWTTokenManagerTask.generateAccessToken error",{ cause: error });
     }
 
     return taskResult;
   }
 
   // リフレッシュトークン生成
-  async generateRefreshToken(email: string): Promise<Result<string>> {
+  async generateRefreshToken(conn : mysql.Connection ,email: string): Promise<Result<string>> {
     const taskResult = new Result<string>();
 
     // ユーザー情報取得
-    const user = await UserTask.findUserByEmail(email);
+    const user = await UserTask.findUserByEmail(conn, email);
 
     if (user.getResult() === Result.NG) {
       taskResult.setResult(Result.NG);
@@ -72,7 +73,7 @@ export class JWTTokenManagerTask implements Task {
     try {
       // リフレッシュトークン生成
       const userData: User = user.getResultData(
-        UserTask.findUserByEmailResult
+        UserTask.FIND_USER_BY_EMAIL_RESULT
       ) as User;
 
       const payload: UserJwtPayload = {
@@ -90,8 +91,8 @@ export class JWTTokenManagerTask implements Task {
       taskResult.setResultData(JWTTokenManagerTask.REFRESH_TOKEN, refreshToken);
       taskResult.setResult(Result.OK);
     } catch (error) {
-      console.error("JWT生成失敗:", error);
-      throw new Error("JWTの生成中に予期しないエラーが発生しました。");
+      taskResult.setResult(Result.NG);
+      throw new Error("JWTTokenManagerTask.generateRefreshToken error",{ cause: error });
     }
 
     return taskResult;

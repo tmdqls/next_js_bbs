@@ -9,13 +9,16 @@ export class Result<T = unknown> {
   private resultData: Map<string, T> = new Map();
   private errors: ErrorDetail[] = [];
 
-  private errorResponse: ErrorResponse | null = null;
+  private errorResponse: ErrorResponse = {
+    status: 500,
+    message: "予想できないエラーが発生しました。管理者に問い合わせください。"
+  };
 
-  getErrorResponse(): ErrorResponse | null {
+  getErrorResponse(): ErrorResponse  {
     return this.errorResponse;
   }
 
-  setErrorResponse(errorResponse: ErrorResponse | null): void {
+  setErrorResponse(errorResponse: ErrorResponse ): void {
     this.errorResponse = errorResponse;
   }
 

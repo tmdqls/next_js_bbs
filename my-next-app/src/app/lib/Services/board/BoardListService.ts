@@ -2,7 +2,7 @@ import { Result } from "@/app/lib/Common/Result";
 import { AbstractService } from "../../Common/AbstractService";
 import { z } from "zod";
 import { AppSymbol } from "../../Simbol/AppSymbol";
-import { BoardTask } from "@/app/lib/utill/BoardTask";
+import { BoardTask } from "@/app/lib/task/BoardTask";
 import { BoardListOptions, Board } from "@/app/models/Board";
 import { PageSchema, OptionsSchema } from "@/app/schemas/BoardSchema";
 
@@ -19,10 +19,14 @@ export class BoardListService extends AbstractService {
     };
 
     const servicesResult = this.getServicesResult();
+    const conn = this.getConnection();
 
     try {
       // トータルボード数取得
-      const boardCountResult = await BoardTask.getBoardListTotalCount(options);
+      const boardCountResult = await BoardTask.getBoardListTotalCount(
+        conn,
+        options
+      );
 
       if (boardCountResult.getResult() === Result.NG) {
         servicesResult.setResult(Result.NG);
@@ -40,7 +44,11 @@ export class BoardListService extends AbstractService {
       this.setOutputData(AppSymbol.BOARD_LIST_TOTAL_COUNT, totalBoardCount);
 
       // ボードリスト取得
-      const boardTaskResult = await BoardTask.getBoardList(pageNum, options);
+      const boardTaskResult = await BoardTask.getBoardList(
+        conn,
+        pageNum,
+        options
+      );
 
       if (boardTaskResult.getResult() === Result.NG) {
         servicesResult.setResult(Result.NG);
@@ -58,15 +66,14 @@ export class BoardListService extends AbstractService {
       this.setOutputData(AppSymbol.BOARD_LIST, boardList);
 
       return true;
-    } catch {
+    } catch(error) {
       servicesResult.setResult(Result.NG);
-      console.error("BoardListService editData error");
-      return false;
+      throw new Error("BoardListService.editData error", { cause: error });
     }
   }
   setOutput(): boolean {
     const servicesResult = this.getServicesResult();
-    
+
     servicesResult.setResultData(
       AppSymbol.BOARD_LIST_TOTAL_COUNT,
       this.getOutputData(AppSymbol.BOARD_LIST_TOTAL_COUNT)

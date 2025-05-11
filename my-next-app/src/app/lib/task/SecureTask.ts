@@ -1,7 +1,6 @@
 import crypto from "crypto";
 import { Task } from "../Common/Task";
 import { Result } from "../Common/Result";
-import { ErrorCodes } from "../Common/ErrorCodes";
 
 export class SecureTask implements Task {
   // 暗号化キー
@@ -36,13 +35,8 @@ export class SecureTask implements Task {
       );
       taskResult.setResult(Result.OK);
     } catch (error) {
-      taskResult.addError({
-        field: "password",
-        message: "パスワードが不正です。",
-      });
-      taskResult.setErrorResponse(ErrorCodes.INVALID_INPUT);
       taskResult.setResult(Result.NG);
-      console.error(error);
+      throw new Error("SecureTask.encryptPassword error" , { cause: error });
     }
 
     return taskResult;
@@ -68,13 +62,8 @@ export class SecureTask implements Task {
       taskResult.setResultData(SecureTask.DECRYPTED_PASSWORD, decrypted);
       taskResult.setResult(Result.OK);
     } catch (error) {
-      taskResult.addError({
-        field: "password",
-        message: "パスワードが不正です",
-      });
-      taskResult.setErrorResponse(ErrorCodes.INVALID_INPUT);
       taskResult.setResult(Result.NG);
-      console.error(error);
+      throw new Error("SecureTask.decryptPassword error" , { cause: error });
     }
 
     return taskResult;

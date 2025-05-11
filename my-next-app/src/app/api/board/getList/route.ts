@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { BoardListService } from "@/app/lib/Services/board/BoardListService";
 import { AppSymbol } from "@/app/lib/Simbol/AppSymbol";
 import { Result } from "@/app/lib/Common/Result";
-import { ErrorCodes } from "@/app/lib/Common/ErrorCodes";
+import pool from "@/app/lib/db";
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
@@ -19,23 +19,22 @@ export async function GET(req: Request) {
   };
 
   const boardListService = new BoardListService();
-
+  // 入力データセット
   boardListService.setInputData(inputData);
+  // DB接続
+  const conn = await pool.getConnection();
+  boardListService.setConnection(conn);
 
   const boardListResult = await boardListService.execute();
 
   if (boardListResult.getResult() === Result.NG) {
     return NextResponse.json(
       {
-        message:
-          boardListResult.getErrorResponse()?.message ??
-          ErrorCodes.SERVER_ERROR.message,
-        error: boardListResult.getErrors() ?? ErrorCodes.SERVER_ERROR.detail,
+        message: boardListResult.getErrorResponse().message,
+        error: boardListResult.getErrors(),
       },
       {
-        status:
-          boardListResult.getErrorResponse()?.status ??
-          ErrorCodes.SERVER_ERROR.status,
+        status: boardListResult.getErrorResponse().status,
       }
     );
   }

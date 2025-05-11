@@ -14,6 +14,11 @@ export const ErrorCodes = {
     status: 404,
     message: "該当するリソースが見つかりません。",
   },
+    // 409 - Conflict
+  DUPLICATE: {
+    status: 409,
+    message: "リソースが重複します。",
+  },
 
   // 500 - Internal Server Error
   SERVER_ERROR: {

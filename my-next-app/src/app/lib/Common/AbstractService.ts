@@ -2,8 +2,23 @@ import { Result } from "@/app/lib/Common/Result";
 import { ErrorDetail } from "@/app/models/ErrorResponse";
 import { ZodTypeAny } from "zod";
 import { ErrorCodes } from "./ErrorCodes";
+import mysql from "mysql2/promise";
 
 export abstract class AbstractService<T = unknown, O = unknown> {
+  // DBコネクションプール
+  private connection?: mysql.PoolConnection;
+
+  setConnection(conn: mysql.PoolConnection) {
+    this.connection = conn;
+  }
+
+  getConnection(): mysql.PoolConnection {
+    if (!this.connection) {
+      throw new Error("DBコネクションが設定されていません。");
+    }
+    return this.connection;
+  }
+
   // 入力データ
   private inputData: T = {} as T;
 
@@ -76,19 +91,40 @@ export abstract class AbstractService<T = unknown, O = unknown> {
   // サービス実行
   async execute(): Promise<Result> {
     this.servicesResult.setResult(Result.NG);
-    if (!this.validate()) {
-      return this.servicesResult;
-    }
 
-    if (!(await this.editData())) {
-      return this.servicesResult;
-    }
+    const connection = this.getConnection();
+    try {
+      await connection.beginTransaction();
 
-    if (!this.setOutput()) {
-      return this.servicesResult;
-    }
+      if (!this.validate()) {
+        return this.servicesResult;
+      }
 
-    this.servicesResult.setResult(Result.OK);
+      if (!(await this.editData())) {
+        return this.servicesResult;
+      }
+
+      if (!this.setOutput()) {
+        return this.servicesResult;
+      }
+
+      await connection.commit();
+      this.servicesResult.setResult(Result.OK);
+    } catch (error) {
+      this.servicesResult.setResult(Result.NG);
+      this.servicesResult.addError({
+        field: "server",
+        message: "予測しないエラーが発生しました。もう一度お試しください。",
+      });
+      this.servicesResult.setErrorResponse({
+        status: ErrorCodes.SERVER_ERROR.status,
+        message: ErrorCodes.SERVER_ERROR.message,
+      });
+      console.log("AbstractService.execute error",error);
+      await connection.rollback();
+    } finally {
+      connection.release();
+    }
     return this.servicesResult;
   }
 }

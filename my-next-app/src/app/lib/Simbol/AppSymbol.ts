@@ -25,7 +25,24 @@ export const AppSymbol = {
   BOARD_SEARCH: "boardSearch",
   // ボード検索フィールド
   BOARD_SEARCH_FIELD: "boardSearchField",
+  // ボードID
+  BOARD_ID: "boardId",
+  // ボードタイトル
+  BOARD_TITLE: "boardTitle",
+  // ボード本文
+  BOARD_CONTENT: "boardContent",
+  // ボード作成日時
+  BOARD_CREATED_AT: "boardCreatedAt",
+  // ボード更新日時
+  BOARD_UPDATED_AT: "boardUpdatedAt",
 
+  // いいね数
+  BOARD_LIKE_COUNT: "boardLikeCount",
+  // いいね状態
+  BOARD_LIKE_STATUS: "boardLikeStatus",
+  // いいねオプション
+  BOARD_LIKE_OPTION: "boardLikeOption",
+  
 // JWT
   // アクセストークン
   ACCESS_TOKEN: "accessToken",
