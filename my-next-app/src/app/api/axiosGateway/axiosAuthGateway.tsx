@@ -1,9 +1,28 @@
-import { AxiosInstance, AxiosError, InternalAxiosRequestConfig } from 'axios';
-import axiosInstance from '../axiosInstance/axiosInstance';
+import axios, {
+  AxiosInstance,
+  AxiosError,
+  InternalAxiosRequestConfig,
+} from "axios";
+import axiosAuthInstance from "../axiosInstance/axiosAuthInstance";
+import { ErrorCodes } from "@/lib/Common/ErrorCodes";
 
-axiosInstance.interceptors.request.use(
+axiosAuthInstance.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
-    //jwtトークン認証追加予定
+    const accessToken =
+    document.cookie
+    .split("; ")
+    .find((row) => row.startsWith("accessToken="))
+    ?.split("=")[1] ?? "";
+    // アクセストークンの有効性を確認
+    console.log(accessToken,"이제 반환은되?")
+    if(!accessToken){
+      throw new Error(ErrorCodes.INVALID_TOKEN.message);
+    }
+    
+    // アクセストークンをヘッダーに追加
+    if (accessToken) {
+      config.headers["Authorization"] = `Bearer ${accessToken}`;
+    }
     return config;
   },
   (error: AxiosError) => {
@@ -11,33 +30,44 @@ axiosInstance.interceptors.request.use(
   }
 );
 
-axiosInstance.interceptors.response.use(
+axiosAuthInstance.interceptors.response.use(
   (response) => response,
-  (error: AxiosError) => {
-    if (error.response) {
-      switch (error.response.status) {
-        case 401:
-          console.error("Unauthorized, please log in again.");
-          break;
-        case 403:
-          console.error("Forbidden, you do not have access.");
-          break;
-        case 500:
-          console.error("Server Error, try again later.");
-          break;
-        default:
-          console.error("An unexpected error occurred.");
-      }
-    } else if (error.request) {
-      console.error("Network Error or No Response from server.");
-    } else {
-      console.error("Error", error.message);
-    }
+  async (error) => {
+    // アクセストークンエラー時
+    if (
+      error.response.status === ErrorCodes.INVALID_TOKEN.status &&
+      error.response.data.message === ErrorCodes.INVALID_TOKEN.message
+    ) {
+      try {
+        // リフレッシュトークンを使って新しいアクセストークンをリクエスト
+        await axios.post(
+          "/api/auth/getAccessToken",
+          {},
+          {
+            withCredentials: true,
+          }
+        );
 
+        // 新しく取得したアクセストークンを元のリクエストに追加
+        const accessToken =
+          document.cookie
+            .split("; ")
+            .find((row) => row.startsWith("accessToken="))
+            ?.split("=")[1] ?? "";
+
+        error.config.headers["Authorization"] = `Bearer ${accessToken}`;
+
+        // リクエストを再送信
+        return axios(error.config);
+      } catch (err) {
+        console.error("アクセストークンの更新中にエラーが発生しました:", err);
+        return Promise.reject(err);
+      }
+    }
     return Promise.reject(error);
   }
 );
 
-const axiosAuthGateway: AxiosInstance = axiosInstance;
+const axiosAuthGateway: AxiosInstance = axiosAuthInstance;
 
 export default axiosAuthGateway;

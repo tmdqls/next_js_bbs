@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { Result } from "@/app/lib/Common/Result";
-import { SignInService } from "@/app/lib/Services/user/SignInService";
-import { AppSymbol } from "@/app/lib/Simbol/AppSymbol";
-import pool from "@/app/lib/db";
+import { Result } from "@/lib/Common/Result";
+import { SignInService } from "@/lib/Services/user/SignInService";
+import { AppSymbol } from "@/lib/Simbol/AppSymbol";
+import pool from "@/lib/db";
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
@@ -51,7 +51,7 @@ export async function POST(req: NextRequest) {
     AppSymbol.ACCESS_TOKEN,
     signInResult.getResultData(AppSymbol.ACCESS_TOKEN) as string,
     {
-      httpOnly: true,
+      httpOnly: false,
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
       path: "/",

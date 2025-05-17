@@ -1,11 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { Result } from "@/app/lib/Common/Result";
-import { BoardLikeService } from "@/app/lib/Services/board/BoardLikeService";
-import pool from "@/app/lib/db";
+import { Result } from "@/lib/Common/Result";
+import { BoardLikeService } from "@/lib/Services/board/BoardLikeService";
+import pool from "@/lib/db";
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
-
   const boardLikeService = new BoardLikeService();
   // リクエストボディをサービスに渡す
   boardLikeService.setInputData(body);

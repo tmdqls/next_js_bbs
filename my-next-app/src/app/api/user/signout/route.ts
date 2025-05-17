@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { AppSymbol } from "@/app/lib/Simbol/AppSymbol";
+import { AppSymbol } from "@/lib/Simbol/AppSymbol";
 
 export async function POST() {
   const response = NextResponse.json({ message: "sign out" });

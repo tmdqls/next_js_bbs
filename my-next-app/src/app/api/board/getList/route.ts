@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
-import { BoardListService } from "@/app/lib/Services/board/BoardListService";
-import { AppSymbol } from "@/app/lib/Simbol/AppSymbol";
-import { Result } from "@/app/lib/Common/Result";
-import pool from "@/app/lib/db";
+import { BoardListService } from "@/lib/Services/board/BoardListService";
+import { AppSymbol } from "@/lib/Simbol/AppSymbol";
+import { Result } from "@/lib/Common/Result";
+import pool from "@/lib/db";
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);

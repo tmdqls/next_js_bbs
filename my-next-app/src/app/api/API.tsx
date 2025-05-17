@@ -1,5 +1,5 @@
 import axiosGateway from "@/app/api/axiosGateway/axiosGateway";
-import { boardListUrl } from "@/app/utill/generateUrl";
+import { boardListUrl } from "@/utill/generateUrl";
 
 export const Api = {
   getBbsList: (
@@ -10,12 +10,11 @@ export const Api = {
     searchField: string = ""
   ) =>
     axiosGateway.get(boardListUrl(page, category, sort, search, searchField)),
-  getBbsDetail: (id: string) =>
-    axiosGateway.get(`/api/board/getBoardDetail?id=${id}`),
+  getBbsDetail: (boardId: number, userId: number = 0) =>
+    axiosGateway.get(`/api/board/getDetail?boardId=${boardId}&userId=${userId}`),
   signIn: (email: string, password: string) =>
     axiosGateway.post(`/api/user/signin`, { email, password }),
   signOut: () => axiosGateway.post(`/api/user/signout`),
-  signInCheck: () => axiosGateway.get(`/api/auth`),
 };
 
 export default Api;

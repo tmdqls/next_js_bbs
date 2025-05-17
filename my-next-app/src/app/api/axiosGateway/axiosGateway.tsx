@@ -25,12 +25,12 @@ axiosInstance.interceptors.response.use(
           console.error("Server Error, try again later.");
           break;
         default:
-          console.error("An unexpected error occurred.");
+          console.error("An unexpected error occurred.", error);
       }
     } else if (error.request) {
       console.error("Network Error or No Response from server.");
     } else {
-      console.error("Error", error.message);
+      console.error("Error", error);
     }
 
     return Promise.reject(error);
