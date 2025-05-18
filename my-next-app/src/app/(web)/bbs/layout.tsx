@@ -1,4 +1,4 @@
-import BoardSidebar from "@/components/BoardSidebar";
+import BoardSidebar from "@/app/(web)/bbs/BoardSidebar";
 import { ReactNode } from "react";
 
 export default function BbsLayout({ children }: { children: ReactNode }) {

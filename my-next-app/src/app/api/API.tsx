@@ -1,4 +1,4 @@
-import axiosGateway from "@/app/api/axiosGateway/axiosGateway";
+import axiosInterceptor from "@/app/api/axiosGateway/axiosInterceptor";
 import { boardListUrl } from "@/utill/generateUrl";
 
 export const Api = {
@@ -9,12 +9,14 @@ export const Api = {
     search: string = "",
     searchField: string = ""
   ) =>
-    axiosGateway.get(boardListUrl(page, category, sort, search, searchField)),
+    axiosInterceptor.get(boardListUrl(page, category, sort, search, searchField)),
   getBbsDetail: (boardId: number, userId: number = 0) =>
-    axiosGateway.get(`/api/board/getDetail?boardId=${boardId}&userId=${userId}`),
+    axiosInterceptor.get(`/api/board/getDetail?boardId=${boardId}&userId=${userId}`),
   signIn: (email: string, password: string) =>
-    axiosGateway.post(`/api/user/signin`, { email, password }),
-  signOut: () => axiosGateway.post(`/api/user/signout`),
+    axiosInterceptor.post(`/api/user/signin`, { email, password }),
+  signOut: () => axiosInterceptor.post(`/api/user/signout`),
+  tokenCheck: (accessToken: string) => axiosInterceptor.post(`/api/auth/accessTokenCheck`, { accessToken }),
+  getAccessToken: () => axiosInterceptor.post(`/api/auth/getAccessToken`, {}, { withCredentials: true }),
 };
 
 export default Api;

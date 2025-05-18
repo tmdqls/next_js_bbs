@@ -1,11 +1,15 @@
 "use client";
 import { useState } from "react";
-import ReactQuillEditor from "@/components/ReactQuillEditor";
+import ReactQuillEditor from "@/app/(web)/bbs/create/ReactQuillEditor";
 import AuthApi from "@/app/api/AuthAPI";
 import { useRouter } from "next/navigation";
+import { AppDispatch } from "@/store/Store";
+import { useDispatch } from "react-redux";
+import { setAlert } from "@/store/slice/alertSlice";
 
 export default function NewBoardPage() {
-  const router = useRouter();  
+  const router = useRouter();
+  const dispatch = useDispatch<AppDispatch>();
 
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
@@ -23,19 +27,20 @@ export default function NewBoardPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-  
+
     try {
-      await AuthApi.createNewBoard({
+      const res = await AuthApi.createNewBoard({
         title,
         content,
         category,
       });
-      alert("投稿が完了しました！");
-      router.push("/pages/bbs/board/1");
+      const data = res.data;
+
+      dispatch(setAlert({ msg: "投稿完了", msgType: "success" }));
+      router.push(`/bbs/read/${data.createdBoardId}`);
     } catch (error) {
       console.error("投稿エラー:", error);
       alert("投稿に失敗しました。再度お試しください。");
-    } finally {
       setIsSubmitting(false);
     }
   };
@@ -85,13 +90,8 @@ export default function NewBoardPage() {
         </div>
 
         <div className="mb-4">
-          <label className="block text-lg text-gray-700 mb-2">
-            内容
-          </label>
-          <ReactQuillEditor
-            value={content}
-            onChange={setContent}
-          />
+          <label className="block text-lg text-gray-700 mb-2">内容</label>
+          <ReactQuillEditor value={content} onChange={setContent} />
         </div>
         <button
           type="submit"

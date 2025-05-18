@@ -1,70 +1,51 @@
-"use client";
-
-import useSWR from "swr";
-import { useParams } from "next/navigation";
+import { notFound } from "next/navigation";
 import { Board, BoardListResponse } from "@/models/Board";
-import PagingButtons from "@/components/PagingButtons";
-import LoadingScreen from "@/components/LoadingScreen";
-import Link from "next/link";
+import PagingButtons from "@/app/(web)/bbs/board/[id]/PagingButtons";
 import Api from "@/app/api/API";
-import striptags from "striptags";
 import { AppSymbol } from "@/lib/Simbol/AppSymbol";
 import { BoardListSchema } from "@/schemas/BoardSchema";
-import { boardListUrl } from "@/utill/generateUrl";
-import { isAxiosError } from "axios";
+import BoardList from "./BoardList";
 
-const BoardPage = () => {
-  const params = useParams();
-  const page = Number(params.id);
+interface BoardPageProps {
+  params: { id: string };
+}
 
-  const { data, error } = useSWR<BoardListResponse>(
-    boardListUrl(page),
-    () =>
-      Api.getBbsList(page).then((res) => {
-        const parseResult = BoardListSchema.safeParse(res.data);
+const BoardPage = async ({ params }: BoardPageProps) => {
+  const { id } = await params;
+  const page = Number(id);
 
-        if (!parseResult.success) {
-          throw new Error("Invalid data format");
-        }
+  let data: BoardListResponse;
 
-        return res.data;
-      })
-  );
+  try {
+    const res = await Api.getBbsList(page);
+    const parseResult = BoardListSchema.safeParse(res.data);
 
-  if (error) {
-    let errorMsg = "";
-    if (isAxiosError(error)) {
-      errorMsg = error.response?.data?.message;
-    } else {
-      errorMsg = "予期しないエラーが発生しました。もう一度お試しください。";
+    if (!parseResult.success) {
+      throw new Error("掲示物が正しくありません。");
     }
-    throw new Error(errorMsg);
-  }
 
-  const isLoading = !data && !error;
+    data = res.data;
+  } catch (error) {
+    let errorMsg = "予期しないエラーが発生しました。もう一度お試しください。";
 
-  if (error) {
+    if (error instanceof Error) {
+      errorMsg = error.message;
+    }
+
     return (
       <div className="text-center text-red-500 mt-8">
         データの読み込み中にエラーが発生しました。
+        <br />
+        {errorMsg}
       </div>
     );
   }
 
-  const TotalPageNum = data?.[AppSymbol.BOARD_LIST_TOTAL_COUNT] as number;
-  const BoardsData = data?.[AppSymbol.BOARD_LIST] as Board[];
+  const totalPageNum = data[AppSymbol.BOARD_LIST_TOTAL_COUNT] as number;
+  const boardsData = data[AppSymbol.BOARD_LIST] as Board[];
 
-  if (!isLoading && (page > TotalPageNum || page <= 0)) {
-    return (
-      <div className="max-w-7xl mx-auto p-6">
-        <h1 className="text-3xl font-bold text-center text-gray-800 mb-8">
-          ページが存在しません
-        </h1>
-        <p className="text-center text-gray-600">
-          指定されたページは存在しません。正しいページ番号を確認してください。
-        </p>
-      </div>
-    );
+  if (page > totalPageNum || page <= 0) {
+    notFound();
   }
 
   return (
@@ -73,40 +54,14 @@ const BoardPage = () => {
         掲示板
       </h1>
       <div className="relative grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-        {isLoading ? (
-          <LoadingScreen />
-        ) : (
-          BoardsData?.map((board) => (
-            <Link
-              href={`/bbs/read/${board.id}`}
-              key={board.id}
-              className="bg-white p-6 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300"
-              style={{ minHeight: "200px" }}
-            >
-              <h2 className="text-xl font-semibold text-gray-800 mb-4">
-                {board.title}
-              </h2>
-              <p className="text-sm text-gray-600 mb-4">
-                {striptags(board.content).length > 100
-                  ? striptags(board.content).slice(0, 100) + "..."
-                  : striptags(board.content)}
-              </p>
-              <div className="flex justify-between text-sm text-gray-500">
-                <span>{new Date(board.created_at).toLocaleDateString()}</span>
-                <span>閲覧数: {board.views}</span>
-              </div>
-            </Link>
-          ))
-        )}
+        <BoardList boards={boardsData} />
       </div>
 
-      {isLoading ? null : (
-        <PagingButtons
-          currentPage={page}
-          totalPages={TotalPageNum}
-          basePath="/bbs/board"
-        />
-      )}
+      <PagingButtons
+        currentPage={page}
+        totalPages={totalPageNum}
+        basePath="/bbs/board"
+      />
     </div>
   );
 };

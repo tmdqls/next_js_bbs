@@ -1,28 +1,46 @@
 import { NextRequest, NextResponse } from "next/server";
-import { AuthTokenService } from "@/lib/Services/auth/AuthTokenService";
+import { GetAccessTokenService } from "@/lib/Services/auth/GetAccessTokenService";
 import { Result } from "@/lib/Common/Result";
 import { AppSymbol } from "@/lib/Simbol/AppSymbol";
+import pool from "@/lib/db";
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
-  body.refreshToken = req.cookies.get('refreshToken')?.value;
+  body.refreshToken = req.cookies.get("refreshToken")?.value;
+  
+  const getAccessTokenService = new GetAccessTokenService();
+  getAccessTokenService.setConnection(await pool.getConnection());
+  getAccessTokenService.setInputData(body);
 
-  const authTokenService = new AuthTokenService();
-  authTokenService.setInputData(body);
+  const getAccessTokenResult = await getAccessTokenService.execute();
 
-  const authTokenResult = await authTokenService.execute();
-
-  if (authTokenResult.getResult() === Result.NG) {
+  if (getAccessTokenResult.getResult() === Result.NG) {
     return NextResponse.json(
       {
-        message: authTokenResult.getErrorResponse().message,
-        error: authTokenResult.getErrors(),
+        message: getAccessTokenResult.getErrorResponse().message,
+        error: getAccessTokenResult.getErrors(),
       },
       {
-        status: authTokenResult.getErrorResponse().status,
+        status: getAccessTokenResult.getErrorResponse().status,
       }
     );
   }
 
-  return NextResponse.json(authTokenResult.getResultData(AppSymbol.ACCESS_TOKEN));  
+  const response = NextResponse.json({
+    [AppSymbol.ACCESS_TOKEN]: getAccessTokenResult.getResultData(
+      AppSymbol.ACCESS_TOKEN
+    ),
+  });
+
+  response.cookies.set(
+    AppSymbol.ACCESS_TOKEN,
+    getAccessTokenResult.getResultData(AppSymbol.ACCESS_TOKEN) as string,
+    {
+      httpOnly: false,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      path: "/",
+    }
+  );
+  return response;
 }

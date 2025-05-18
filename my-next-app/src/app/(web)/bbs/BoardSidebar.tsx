@@ -1,4 +1,4 @@
-import SidebarLink from "@/components/SidebarLink";
+import SidebarLink from "@/app/(web)/bbs/SidebarLink";
 
 export default function BoardSidebar() {
   return (

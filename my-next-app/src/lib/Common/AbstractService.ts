@@ -1,5 +1,5 @@
 import { Result } from "@/lib/Common/Result";
-import { ErrorDetail } from "@/app/models/ErrorResponse";
+import { ErrorDetail } from "@/models/ErrorResponse";
 import { ZodTypeAny } from "zod";
 import { ErrorCodes } from "./ErrorCodes";
 import mysql from "mysql2/promise";

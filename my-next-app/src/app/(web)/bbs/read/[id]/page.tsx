@@ -1,9 +1,9 @@
 import Api from "@/app/api/API";
-import SafeHtmlViewer from "@/components/SageHtmlViewer";
+import SafeHtmlViewer from "@/app/(web)/bbs/read/[id]/SageHtmlViewer";
 import { isAxiosError } from "axios";
 import { Board } from "@/models/Board";
 import { Author } from "next/dist/lib/metadata/types/metadata-types";
-import LikeButton from "@/components/LikeButton";
+import LikeButton from "@/app/(web)/bbs/read/[id]/LikeButton";
 import { cookies } from "next/headers";
 import jwt from "jsonwebtoken";
 import { UserJwtPayload } from "@/models/UserJwtPayload";

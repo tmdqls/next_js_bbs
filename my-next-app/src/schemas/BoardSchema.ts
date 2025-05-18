@@ -57,3 +57,11 @@ export const LikeRequestSchema = z.object({
     required_error: "いいね処理のオプションは必須です。",
   }),
 });
+
+// ボード作成リクエスト
+export const BoardCreateSchema = z.object({
+  title: z.string().min(1, { message: "タイトルは必須です。" }),
+  category: z.string().min(1, { message: "カテゴリーは必須です。" }),
+  content: z.string().min(1, { message: "コンテンツは必須です。" }),
+  accessToken: z.string().min(1, "アクセストークンは必須です。"),
+});

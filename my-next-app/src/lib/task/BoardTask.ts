@@ -11,6 +11,7 @@ export class BoardTask implements Task {
   static readonly BOARD_LIST = "boardList";
   static readonly BOARD_LIST_TOTAL_COUNT = "boardListTotalCount";
   static readonly BOARD = "board";
+  static readonly CREATED_BOARD_ID = "createdBoardId";
 
   // 1ページに表示する掲示物の数
   private static readonly PAGE_SIZE = 9;
@@ -163,7 +164,7 @@ export class BoardTask implements Task {
       });
     }
   }
-    /**
+  /**
    * 指定したIDの掲示物を取得する
    *
    * @param boardId - 掲示物のID
@@ -225,7 +226,6 @@ export class BoardTask implements Task {
   ): Promise<Result> {
     const taskResult = new Result<void>();
     try {
-
       // 掲示物存在チェック
       const isExist = await BoardUtill.isExist(conn, boardId);
 
@@ -255,7 +255,7 @@ export class BoardTask implements Task {
       await conn.query(updateQuery, [increment, boardId]);
 
       // like 更新
-      if(operation === "add") {
+      if (operation === "add") {
         await LikeUtill.insertLike(conn, userId, boardId);
       } else {
         await LikeUtill.deleteLike(conn, userId, boardId);
@@ -265,6 +265,48 @@ export class BoardTask implements Task {
       return taskResult;
     } catch (error) {
       throw new Error("BoardTask.updateLikeCount error", { cause: error });
+    }
+  }
+
+  /**
+   * 게시글 작성
+   *
+   * @param usersId - 作成者id
+   * @param title - タイトル
+   * @param category - カテゴリ
+   * @param content - コンテンツ
+   * @returns insertId
+   */
+  static async createBoard(
+    conn: mysql.Connection,
+    usersId: number,
+    title: string,
+    category: string,
+    content: string
+  ): Promise<Result<number>> {
+    const taskResult = new Result<number>();
+
+    try {
+      const query = `
+        INSERT INTO boards (title, category, content, users_id)
+        VALUES (?, ?, ?, ?)
+      `;
+
+      const [result] = await conn.execute<mysql.ResultSetHeader>(query, [
+        title,
+        category,
+        content,
+        usersId,
+      ]);
+
+      const insertId = result.insertId;
+
+      taskResult.setResult(Result.OK);
+      taskResult.setResultData(BoardTask.CREATED_BOARD_ID, insertId);
+
+      return taskResult;
+    } catch (error) {
+      throw new Error("BoardTask.createPost error", { cause: error });
     }
   }
 }

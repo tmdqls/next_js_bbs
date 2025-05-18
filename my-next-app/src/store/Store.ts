@@ -12,9 +12,25 @@ import {
   REGISTER,
 } from "redux-persist";
 
+function createNoopStorage() {
+  return {
+    getItem() {
+      return Promise.resolve(null);
+    },
+    setItem(_key: string, value: string) {
+      return Promise.resolve(value);
+    },
+    removeItem() {
+      return Promise.resolve();
+    },
+  };
+}
+
+const isBrowser = typeof window !== "undefined";
+
 const persistConfig = {
   key: "root",
-  storage,
+  storage: isBrowser ? storage : createNoopStorage(),
   whitelist: ["user"],
 };
 

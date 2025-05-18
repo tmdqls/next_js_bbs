@@ -5,7 +5,7 @@ import { RefreshTokenSchema } from "@/schemas/TokenSchema";
 import { JWTTokenManagerTask } from "../../task/JWTTokenManager";
 import { ErrorCodes } from "../../Common/ErrorCodes";
 
-export class AuthTokenService extends AbstractService {
+export class GetAccessTokenService extends AbstractService {
   schema = RefreshTokenSchema;
 
   async editData(): Promise<boolean> {

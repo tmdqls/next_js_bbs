@@ -39,6 +39,8 @@ export const AppSymbol = {
   BOARD_CREATED_AT: "boardCreatedAt",
   // ボード更新日時
   BOARD_UPDATED_AT: "boardUpdatedAt",
+  // ボード作成ID
+  CREATED_BOARD_ID: "createdBoardId",
 
   // いいね数
   BOARD_LIKE_COUNT: "boardLikeCount",

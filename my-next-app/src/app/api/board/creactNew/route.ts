@@ -1,46 +1,39 @@
 import { NextRequest, NextResponse } from "next/server";
 import db from "@/lib/db";
-import mysql from "mysql2/promise";
-import jwt from 'jsonwebtoken';
-
-const SECRET_KEY = process.env.JWT_SECRET ?? '';
+import { BoardCreactNewService } from "@/lib/Services/board/BoardCreactNewService";
+import { Result } from "@/lib/Common/Result";
+import { AppSymbol } from "@/lib/Simbol/AppSymbol";
 
 export async function POST(req: NextRequest) {
-  const connection = await db.getConnection();
+  const body = await req.json();
 
-  try {
+  const authHeader = req.headers.get("authorization") ?? "";
+  const accessToken = authHeader.split(" ")[1];
 
-    const token = req.cookies.get("token")?.value;
-    if (!token) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+  body.accessToken = accessToken;
 
-    const decoded = jwt.verify(token, SECRET_KEY) as jwt.JwtPayload;
-    const users_id = decoded.id;
+  const boardCreateService = new BoardCreactNewService();
+  // リクエストボディをサービスに渡す
+  boardCreateService.setInputData(body);
+  // DB接続
+  boardCreateService.setConnection(await db.getConnection());
 
-    const { title, category, content } = await req.json();
+  const boardCreateResult = await boardCreateService.execute();
 
-    if (!title || !category || !content || !users_id) {
-      return NextResponse.json({ error: "Missing fields" }, { status: 400 });
-    }
-
-    const query = `
-      INSERT INTO boards (title, category, content, users_id)
-      VALUES (?, ?, ?, ?)
-    `;
-
-    const [result] = await connection.execute<mysql.ResultSetHeader>(query, [
-      title,
-      category,
-      content,
-      users_id,
-    ]);
-
-    return NextResponse.json({ message: "投稿成功", id: result.insertId }, { status: 201 });
-  } catch (error) {
-    console.error("API /boards POST error:", error);
-    return NextResponse.json({ error: "DB error" }, { status: 500 });
-  } finally {
-    connection.release();
+  if (boardCreateResult.getResult() === Result.NG) {
+    return NextResponse.json(
+      {
+        message: boardCreateResult.getErrorResponse().message,
+        error: boardCreateResult.getErrors(),
+      },
+      {
+        status: boardCreateResult.getErrorResponse().status,
+      }
+    );
   }
+
+  const response = NextResponse.json({
+    [AppSymbol.CREATED_BOARD_ID]:boardCreateResult.getResultData(AppSymbol.CREATED_BOARD_ID),
+  });
+  return response;
 }

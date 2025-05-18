@@ -1,17 +1,16 @@
-import axiosAuthGateway from "@/app/api/axiosGateway/axiosAuthGateway";
+import axiosAuthInterceptor from "@/app/api/axiosGateway/axiosAuthInterceptor";
 
 export const AuthApi = {
   createNewBoard: (data: {
     title: string;
     content: string;
     category: string;
-  }) => axiosAuthGateway.post("/api/board/creactNew", data),
+  }) => axiosAuthInterceptor.post("/api/board/creactNew", data),
   likes: (data: {
     boardId: number;
     userId: number;
     boardLikeOption: "add" | "remove";
-  }) => axiosAuthGateway.post("/api/board/likes", data),
-  signInCheck: () => axiosAuthGateway.post(`/api/auth/signInCheck`),
+  }) => axiosAuthInterceptor.post("/api/board/likes", data),
 };
 
 export default AuthApi;

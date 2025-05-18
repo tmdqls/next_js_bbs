@@ -1,5 +1,9 @@
 import { AxiosInstance, AxiosError, InternalAxiosRequestConfig } from 'axios';
-import axiosInstance from '../axiosInstance/axiosInstance';
+import axios from 'axios';
+
+const axiosInstance = axios.create({
+  baseURL: typeof window === "undefined" ? "http://localhost:3000" : "",
+});
 
 axiosInstance.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
@@ -37,6 +41,6 @@ axiosInstance.interceptors.response.use(
   }
 );
 
-const axiosGateway: AxiosInstance = axiosInstance;
+const axiosInterceptor: AxiosInstance = axiosInstance;
 
-export default axiosGateway;
+export default axiosInterceptor;

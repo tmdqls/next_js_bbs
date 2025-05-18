@@ -101,8 +101,7 @@ export class JWTTokenManagerTask implements Task {
     try {
       jwt.verify(token, this.ACCESS_SECRET);
       return true;
-    } catch(error) {
-      console.log(error)
+    } catch {
       return false;
     }
   }
