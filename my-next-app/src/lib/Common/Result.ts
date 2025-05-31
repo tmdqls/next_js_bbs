@@ -1,4 +1,4 @@
-import { ErrorDetail, ErrorResponse } from "@/app/models/ErrorResponse";
+import { ErrorDetail, ErrorResponse } from "@/models/ErrorResponse";
 
 export class Result<T = unknown> {
   static readonly UNKNOWN = -1;

@@ -1,23 +1,31 @@
 import { notFound } from "next/navigation";
 import { Board, BoardListResponse } from "@/models/Board";
-import PagingButtons from "@/app/(web)/bbs/board/[id]/PagingButtons";
+import PagingButtons from "@/app/(web)/bbs/board/[category]/[id]/PagingButtons";
 import Api from "@/app/api/API";
 import { AppSymbol } from "@/lib/Simbol/AppSymbol";
-import { BoardListSchema } from "@/schemas/BoardSchema";
+import { BoardListSchema, CategorySchema } from "@/schemas/BoardSchema";
 import BoardList from "./BoardList";
+import { AxiosError } from "axios";
 
 interface BoardPageProps {
-  params: { id: string };
+  params: Promise<{ id: string; category: string }>;
 }
 
 const BoardPage = async ({ params }: BoardPageProps) => {
-  const { id } = await params;
+  const { id, category } = await params;
+
+  const parsedParams = CategorySchema.safeParse(category);
+
+  if (!parsedParams.success) {
+    throw new Error("カテゴリが正しくありません。");
+  }
+
   const page = Number(id);
 
   let data: BoardListResponse;
 
   try {
-    const res = await Api.getBbsList(page);
+    const res = await Api.getBbsList(page, category);
     const parseResult = BoardListSchema.safeParse(res.data);
 
     if (!parseResult.success) {
@@ -28,17 +36,10 @@ const BoardPage = async ({ params }: BoardPageProps) => {
   } catch (error) {
     let errorMsg = "予期しないエラーが発生しました。もう一度お試しください。";
 
-    if (error instanceof Error) {
-      errorMsg = error.message;
+    if (error instanceof AxiosError) {
+      errorMsg = error.response?.data.message || errorMsg;
     }
-
-    return (
-      <div className="text-center text-red-500 mt-8">
-        データの読み込み中にエラーが発生しました。
-        <br />
-        {errorMsg}
-      </div>
-    );
+    throw new Error(errorMsg);
   }
 
   const totalPageNum = data[AppSymbol.BOARD_LIST_TOTAL_COUNT] as number;
@@ -60,7 +61,7 @@ const BoardPage = async ({ params }: BoardPageProps) => {
       <PagingButtons
         currentPage={page}
         totalPages={totalPageNum}
-        basePath="/bbs/board"
+        basePath={`/bbs/board/${category}`}
       />
     </div>
   );

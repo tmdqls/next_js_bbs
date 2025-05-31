@@ -41,7 +41,9 @@ export async function POST(req: NextRequest) {
     signInResult.getResultData(AppSymbol.REFRESH_TOKEN) as string,
     {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      //secure: process.env.NODE_ENV === "production",
+      // HTTP専用なのでfalseにする
+      secure: false,
       sameSite: "strict",
       path: "/",
     }
@@ -52,7 +54,9 @@ export async function POST(req: NextRequest) {
     signInResult.getResultData(AppSymbol.ACCESS_TOKEN) as string,
     {
       httpOnly: false,
-      secure: process.env.NODE_ENV === "production",
+      //secure: process.env.NODE_ENV === "production",
+      // HTTP専用なのでfalseにする
+      secure: false,
       sameSite: "strict",
       path: "/",
     }

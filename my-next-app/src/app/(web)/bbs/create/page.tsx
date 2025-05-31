@@ -6,6 +6,9 @@ import { useRouter } from "next/navigation";
 import { AppDispatch } from "@/store/Store";
 import { useDispatch } from "react-redux";
 import { setAlert } from "@/store/slice/alertSlice";
+import { Category, CategoryOrEmpty } from "@/models/Board";
+import striptags from "striptags";
+import { BoardCreateFormSchema } from "@/schemas/BoardSchema";
 
 export default function NewBoardPage() {
   const router = useRouter();
@@ -13,10 +16,10 @@ export default function NewBoardPage() {
 
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-  const [category, setCategory] = useState("");
+  const [category, setCategory] = useState<CategoryOrEmpty>("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const categories = [
+  const categories: Category[] = [
     "Technology",
     "Lifestyle",
     "Business",
@@ -27,6 +30,24 @@ export default function NewBoardPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+    
+    const contentWithoutHtml = striptags(content);
+
+    const form = {
+      title,
+      content: contentWithoutHtml,
+      category,
+    };
+
+    const formZodResult = BoardCreateFormSchema.safeParse(form);
+
+    if(!formZodResult.success){
+      setIsSubmitting(false);
+      const zodErrors = formZodResult.error.errors;
+      dispatch(setAlert({ msg: zodErrors[0].message, msgType: "error" }));
+      return;
+    }
+
 
     try {
       const res = await AuthApi.createNewBoard({
@@ -62,7 +83,6 @@ export default function NewBoardPage() {
             onChange={(e) => setTitle(e.target.value)}
             placeholder="タイトルを入力してください"
             className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            required
           />
         </div>
 
@@ -76,9 +96,8 @@ export default function NewBoardPage() {
           <select
             id="category"
             value={category}
-            onChange={(e) => setCategory(e.target.value)}
+            onChange={(e) => setCategory(e.target.value as CategoryOrEmpty)}
             className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            required
           >
             <option value="">選択してください</option>
             {categories.map((cat, index) => (

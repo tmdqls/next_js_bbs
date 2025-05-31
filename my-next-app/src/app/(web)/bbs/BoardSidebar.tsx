@@ -8,26 +8,40 @@ export default function BoardSidebar() {
           <SidebarLink href="/bbs/create" label="掲示板作成" iconType="pen" />
         </li>
         <li>
-          <SidebarLink href="/bbs/board" label="ホーム" iconType="home" />
+          <SidebarLink href="/bbs/board/Home/1" label="Home" iconType="home" />
         </li>
         <li>
           <SidebarLink
-            href="/bbs/board/category/1"
-            label="カテゴリ１"
+            href="/bbs/board/Technology/1"
+            label="Technology"
             iconType="list"
           />
         </li>
         <li>
           <SidebarLink
-            href="/bbs/board/category/1"
-            label="カテゴリ２"
+            href="/bbs/board/Lifestyle/1"
+            label="Lifestyle"
             iconType="list"
           />
         </li>
         <li>
           <SidebarLink
-            href="/bbs/board/category/1"
-            label="カテゴリ３"
+            href="/bbs/board/Business/1"
+            label="Business"
+            iconType="list"
+          />
+        </li>
+                <li>
+          <SidebarLink
+            href="/bbs/board/Entertainment/1"
+            label="Entertainment"
+            iconType="list"
+          />
+        </li>
+                <li>
+          <SidebarLink
+            href="/bbs/board/Sports/1"
+            label="Sports"
             iconType="list"
           />
         </li>

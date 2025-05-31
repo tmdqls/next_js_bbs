@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.5.1",
+    "@tailwindcss/typography": "^0.5.16",
     "axios": "^1.7.9",
     "cross-env": "^7.0.3",
     "dotenv": "^16.5.0",

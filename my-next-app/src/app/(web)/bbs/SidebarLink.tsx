@@ -1,25 +1,40 @@
-'use client';
+"use client";
 
-import Link from 'next/link';
-import { FaPen, FaHome, FaListAlt } from 'react-icons/fa';
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { FaPen, FaHome, FaListAlt } from "react-icons/fa";
 
 type SidebarLinkProps = {
   href: string;
   label: string;
-  iconType: 'pen' | 'home' | 'list';
+  iconType: "pen" | "home" | "list";
 };
 
-export default function SidebarLink({ href, label, iconType }: SidebarLinkProps) {
+export default function SidebarLink({
+  href,
+  label,
+  iconType,
+}: SidebarLinkProps) {
+  const pathname = usePathname();
+  
+  const pathSplit = pathname.split("/");
+  const propPathSplit = href.split("/");
+  
+  const categoryName = pathSplit[3];
+  const propCategoryName = propPathSplit[3];
+  
+  const isActive = categoryName === propCategoryName;
+
   let Icon;
 
   switch (iconType) {
-    case 'home':
+    case "home":
       Icon = FaHome;
       break;
-    case 'list':
+    case "list":
       Icon = FaListAlt;
       break;
-    case 'pen':
+    case "pen":
     default:
       Icon = FaPen;
   }
@@ -27,7 +42,9 @@ export default function SidebarLink({ href, label, iconType }: SidebarLinkProps)
   return (
     <Link
       href={href}
-      className="flex items-center text-lg font-medium hover:bg-gray-400 p-2 rounded-md transition-colors"
+      className={`flex items-center text-lg font-medium p-2 rounded-md transition-colors ${
+        isActive ? 'bg-blue-600 text-white' : 'hover:bg-gray-400 text-black'
+      }`}
     >
       <Icon className="mr-3" />
       {label}

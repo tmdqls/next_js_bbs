@@ -12,10 +12,21 @@ export interface Board {
   views: number;
 }
 
+export type Category = 
+  | "Technology"
+  | "Lifestyle"
+  | "Business"
+  | "Entertainment"
+  | "Sports";
+
+export type CategoryWithHome = Category | "Home";
+
+export type CategoryOrEmpty = Category | "";
+
 export interface BoardListOptions {
-  category?: string;
-  sort?: "newest" | "oldest";
-  search?: string;
+  category: CategoryWithHome;
+  sort: "newest" | "oldest";
+  search: string;
   searchField?: "title" | "content" | "author";
 }
 

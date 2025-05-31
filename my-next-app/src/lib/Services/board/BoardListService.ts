@@ -17,7 +17,7 @@ export class BoardListService extends AbstractService {
       pageNum: number;
       options: BoardListOptions;
     };
-
+    
     const servicesResult = this.getServicesResult();
     const conn = this.getConnection();
 
@@ -27,7 +27,7 @@ export class BoardListService extends AbstractService {
         conn,
         options
       );
-
+      
       if (boardCountResult.getResult() === Result.NG) {
         servicesResult.setResult(Result.NG);
         for (const err of boardCountResult.getErrors()) {
@@ -40,16 +40,16 @@ export class BoardListService extends AbstractService {
       const totalBoardCount = boardCountResult.getResultData(
         BoardTask.BOARD_LIST_TOTAL_COUNT
       ) as number;
-
+      
       this.setOutputData(AppSymbol.BOARD_LIST_TOTAL_COUNT, totalBoardCount);
-
+      
       // ボードリスト取得
       const boardTaskResult = await BoardTask.getBoardList(
         conn,
         pageNum,
         options
       );
-
+      
       if (boardTaskResult.getResult() === Result.NG) {
         servicesResult.setResult(Result.NG);
         for (const err of boardTaskResult.getErrors()) {
@@ -73,7 +73,7 @@ export class BoardListService extends AbstractService {
   }
   setOutput(): boolean {
     const servicesResult = this.getServicesResult();
-
+    
     servicesResult.setResultData(
       AppSymbol.BOARD_LIST_TOTAL_COUNT,
       this.getOutputData(AppSymbol.BOARD_LIST_TOTAL_COUNT)
@@ -82,7 +82,7 @@ export class BoardListService extends AbstractService {
       AppSymbol.BOARD_LIST,
       this.getOutputData(AppSymbol.BOARD_LIST)
     );
-
+    
     servicesResult.setResult(Result.OK);
     return true;
   }

@@ -4,8 +4,8 @@ import { boardListUrl } from "@/utill/generateUrl";
 export const Api = {
   getBbsList: (
     page: number,
-    category: string = "",
-    sort: string = "",
+    category: string,
+    sort: string = "newest",
     search: string = "",
     searchField: string = ""
   ) =>

@@ -37,7 +37,9 @@ export async function POST(req: NextRequest) {
     getAccessTokenResult.getResultData(AppSymbol.ACCESS_TOKEN) as string,
     {
       httpOnly: false,
-      secure: process.env.NODE_ENV === "production",
+      // secure: process.env.NODE_ENV === "production",
+      // HTTP専用なのでfalseにする
+      secure: false,
       sameSite: "strict",
       path: "/",
     }

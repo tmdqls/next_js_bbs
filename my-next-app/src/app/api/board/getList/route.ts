@@ -17,16 +17,15 @@ export async function GET(req: Request) {
     pageNum: pageNum,
     options: options,
   };
-
+  
   const boardListService = new BoardListService();
   // 入力データセット
   boardListService.setInputData(inputData);
   // DB接続
   const conn = await pool.getConnection();
   boardListService.setConnection(conn);
-
+  
   const boardListResult = await boardListService.execute();
-
   if (boardListResult.getResult() === Result.NG) {
     return NextResponse.json(
       {

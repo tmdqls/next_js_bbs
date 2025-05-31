@@ -50,7 +50,7 @@ const Navbar = () => {
             Home
           </Link>
           <Link
-            href="/bbs/board/1"
+            href="/bbs/board/Home/1"
             className="text-white hover:text-gray-300 transition duration-300"
           >
             BBS

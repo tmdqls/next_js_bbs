@@ -1,7 +1,4 @@
-"use client";
-
 import Image from "next/image";
-import Link from "next/link";
 
 export default function Home() {
   return (
@@ -21,33 +18,6 @@ export default function Home() {
             priority
           />
         </div>
-      </section>
-
-      <section className="w-full max-w-4xl grid grid-cols-1 sm:grid-cols-2 gap-6">
-        <Link
-          href="/board1"
-          className="bg-blue-500 text-white text-center p-5 rounded-xl shadow-md hover:bg-blue-600 transition text-lg"
-        >
-          掲示板1
-        </Link>
-        <Link
-          href="/board2"
-          className="bg-green-500 text-white text-center p-5 rounded-xl shadow-md hover:bg-green-600 transition text-lg"
-        >
-          掲示板2
-        </Link>
-        <Link
-          href="/board3"
-          className="bg-purple-500 text-white text-center p-5 rounded-xl shadow-md hover:bg-purple-600 transition text-lg"
-        >
-          掲示板3
-        </Link>
-        <Link
-          href="/board4"
-          className="bg-red-500 text-white text-center p-5 rounded-xl shadow-md hover:bg-red-600 transition text-lg"
-        >
-          掲示板4
-        </Link>
       </section>
     </div>
   );

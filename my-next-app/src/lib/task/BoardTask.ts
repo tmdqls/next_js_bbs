@@ -20,19 +20,19 @@ export class BoardTask implements Task {
   static async getBoardList(
     conn: mysql.Connection,
     pageNum: number,
-    options?: BoardListOptions
+    options: BoardListOptions
   ): Promise<Result<Board[]>> {
     const result = new Result<Board[]>();
 
     try {
-      const { category, sort = "newest", search, searchField } = options || {};
+      const { category, sort, search, searchField } = options;
       const queryParams: (string | number)[] = [];
       const conditions: string[] = [];
 
       let query = `SELECT * FROM boards`;
 
       // カテゴリフィルター
-      if (category) {
+      if (category !== "Home") {
         conditions.push(`category = ?`);
         queryParams.push(category);
       }
@@ -105,15 +105,15 @@ export class BoardTask implements Task {
   // トータルぺ゙ード数取得
   static async getBoardListTotalCount(
     conn: mysql.Connection,
-    options?: BoardListOptions
+    options: BoardListOptions
   ): Promise<Result<number>> {
     const result = new Result<number>();
     const conditions: string[] = [];
     const params: string[] = [];
+    
+    const { category, search, searchField } = options;
 
-    const { category, search, searchField } = options || {};
-
-    if (category) {
+    if (category !== "Home") {
       conditions.push("category = ?");
       params.push(category);
     }
@@ -129,16 +129,15 @@ export class BoardTask implements Task {
         params.push(`%${search}%`);
       }
     }
-
+    
     let query = "SELECT COUNT(*) AS total FROM boards";
     if (conditions.length > 0) {
       query += " WHERE " + conditions.join(" AND ");
     }
-
     try {
       const [rows] = await conn.query<mysql.RowDataPacket[]>(query, params);
       const totalCount = rows[0]?.total;
-
+      
       if (!totalCount) {
         result.setResult(Result.NG);
         result.addError({
@@ -151,10 +150,10 @@ export class BoardTask implements Task {
         });
         return result;
       }
-
+      
       const totalPages = Math.ceil(totalCount / BoardTask.PAGE_SIZE);
       result.setResultData(BoardTask.BOARD_LIST_TOTAL_COUNT, totalPages);
-
+      
       result.setResult(Result.OK);
       return result;
     } catch (error) {

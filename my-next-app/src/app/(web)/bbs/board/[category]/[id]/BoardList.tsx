@@ -1,29 +1,34 @@
-'use client';
+"use client";
 
-import Link from 'next/link';
-import striptags from 'striptags';
-import { Board } from '@/models/Board';
+import Link from "next/link";
+import striptags from "striptags";
+import { Board } from "@/models/Board";
+import { usePathname } from "next/navigation";
 
 interface BoardListProps {
   boards: Board[];
 }
 
 export default function BoardList({ boards }: BoardListProps) {
+  const pathname = usePathname();
+  const pathSplit = pathname.split("/");
+
+  const categoryName = pathSplit[3];
   return (
     <>
       {boards.map((board) => (
         <Link
-          href={`/bbs/read/${board.id}`}
+          href={`/bbs/read/${categoryName}/${board.id}`}
           key={board.id}
           className="bg-white p-6 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300"
-          style={{ minHeight: '200px' }}
+          style={{ minHeight: "200px" }}
         >
           <h2 className="text-xl font-semibold text-gray-800 mb-4">
             {board.title}
           </h2>
           <p className="text-sm text-gray-600 mb-4">
             {striptags(board.content).length > 100
-              ? striptags(board.content).slice(0, 100) + '...'
+              ? striptags(board.content).slice(0, 100) + "..."
               : striptags(board.content)}
           </p>
           <div className="flex justify-between text-sm text-gray-500">

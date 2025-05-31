@@ -103,9 +103,15 @@ export abstract class AbstractService<T = unknown, O = unknown ,U = unknown> {
       if (!(await this.editData())) {
         return this.servicesResult;
       }
-
+      
       if (!this.setOutput()) {
         return this.servicesResult;
+      }
+
+      // エラーログ出力
+      if(this.servicesResult.getResult() === Result.NG){
+        console.log("エラー",this.servicesResult.getErrors());
+        console.log("エラーレスポンス",this.servicesResult.getErrorResponse());
       }
 
       await connection.commit();

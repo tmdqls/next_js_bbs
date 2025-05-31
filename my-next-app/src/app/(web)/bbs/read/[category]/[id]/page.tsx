@@ -1,9 +1,9 @@
 import Api from "@/app/api/API";
-import SafeHtmlViewer from "@/app/(web)/bbs/read/[id]/SageHtmlViewer";
+import SafeHtmlViewer from "@/app/(web)/bbs/read/[category]/[id]/SageHtmlViewer";
 import { isAxiosError } from "axios";
 import { Board } from "@/models/Board";
 import { Author } from "next/dist/lib/metadata/types/metadata-types";
-import LikeButton from "@/app/(web)/bbs/read/[id]/LikeButton";
+import LikeButton from "@/app/(web)/bbs/read/[category]/[id]/LikeButton";
 import { cookies } from "next/headers";
 import jwt from "jsonwebtoken";
 import { UserJwtPayload } from "@/models/UserJwtPayload";
@@ -11,7 +11,7 @@ import { UserJwtPayload } from "@/models/UserJwtPayload";
 export default async function BoardDetailPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
   let board: Board | null = null;

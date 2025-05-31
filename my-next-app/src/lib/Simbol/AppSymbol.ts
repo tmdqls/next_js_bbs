@@ -56,4 +56,4 @@ export const AppSymbol = {
   ACCESS_TOKEN: "accessToken",
   // リフレッシュトークン
   REFRESH_TOKEN: "refreshToken",
-};
+} as const;
