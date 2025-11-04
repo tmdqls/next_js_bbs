@@ -9,6 +9,8 @@ export const AppSymbol = {
   USER_NAME: "userName",
   // ユーザー権限
   USER_ROLE: "userRole",
+  // ユーザー登録メッセージ
+  USER_SIGN_UP_MSG: "userSignupMsg",
 
 // ボード
   // ボードリスト

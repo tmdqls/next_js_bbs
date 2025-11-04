@@ -57,7 +57,7 @@ export class SignInService extends AbstractService {
         servicesResult.setResult(Result.NG);
         servicesResult.addError({
           field: "password",
-          message: "パスワード正しくありません。",
+          message: "パスワードが正しくありません。",
         });
 
         servicesResult.setErrorResponse(ErrorCodes.UNAUTHORIZED);

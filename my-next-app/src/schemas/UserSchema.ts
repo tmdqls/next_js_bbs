@@ -10,3 +10,8 @@ export const passwordSchema = z
   .string({ required_error: "passwordは必須です。" })
   .min(8, { message: "passwordは8文字以上で入力してください。" })
   .max(32, { message: "passwordは32文字以下で入力してください。" });
+
+  export const nameSchema = z
+  .string({ required_error: "nameは必須です。" })
+  .min(2, { message: "nameは2文字以上で入力してください。" })
+  .max(10, { message: "nameは10文字以下で入力してください。" });

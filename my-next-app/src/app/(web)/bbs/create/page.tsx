@@ -58,7 +58,7 @@ export default function NewBoardPage() {
       const data = res.data;
 
       dispatch(setAlert({ msg: "投稿完了", msgType: "success" }));
-      router.push(`/bbs/read/${data.createdBoardId}`);
+      router.push(`/bbs/read/${category}/${data.createdBoardId}`);
     } catch (error) {
       console.error("投稿エラー:", error);
       alert("投稿に失敗しました。再度お試しください。");

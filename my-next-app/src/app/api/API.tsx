@@ -14,6 +14,8 @@ export const Api = {
     axiosInterceptor.get(`/api/board/getDetail?boardId=${boardId}&userId=${userId}`),
   signIn: (email: string, password: string) =>
     axiosInterceptor.post(`/api/user/signin`, { email, password }),
+  signUp: (email: string, password: string, name: string) =>
+    axiosInterceptor.post(`/api/user/signup`, { email, password, name}),
   signOut: () => axiosInterceptor.post(`/api/user/signout`),
   tokenCheck: (accessToken: string) => axiosInterceptor.post(`/api/auth/accessTokenCheck`, { accessToken }),
   getAccessToken: () => axiosInterceptor.post(`/api/auth/getAccessToken`, {}, { withCredentials: true }),

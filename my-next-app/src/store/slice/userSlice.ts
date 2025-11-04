@@ -33,6 +33,21 @@ export const signin = createAsyncThunk(
   }
 );
 
+// Signup
+export const signup = createAsyncThunk(
+  "user/signin",
+  async ({ email, password, name }: { email: string; password: string; name: string }, { rejectWithValue }) => {
+    try {
+      const { data } = await Api.signUp(email, password, name);
+      return data;
+    } catch (error) {
+      return rejectWithValue(
+        axios.isAxiosError(error) ? error.response?.data : "予期しないエラーが発生しました。もう一度お試しください。"
+      );
+    }
+  }
+);
+
 // Signout
 export const signout = createAsyncThunk(
   "user/signout",
