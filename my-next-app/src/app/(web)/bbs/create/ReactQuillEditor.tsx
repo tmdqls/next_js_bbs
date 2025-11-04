@@ -6,8 +6,9 @@ interface ReactQuillEditorProps {
   onChange: (value: string) => void;
 }
 
+const ReactQuill = dynamic(() => import('react-quill-new'), { ssr: false }) 
+
 function ReactQuillEditor({ value, onChange }: ReactQuillEditorProps) {
-  const ReactQuill = dynamic(() => import('react-quill-new'), { ssr: false }) 
   return (
     <div className="w-full min-h-[350px]">
       <ReactQuill
